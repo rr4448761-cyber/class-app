@@ -13,13 +13,12 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 // --- KONEKSI KE SUPABASE ---
-// Nanti URL database akan diisi otomatis lewat Environment Variable di Render
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: { rejectUnauthorized: false }
 });
 
-// --- KONFIGURASI VAPID (PASTIKAN INI KEY LO) ---
+// --- KONFIGURASI VAPID ---
 const VAPID_PUBLIC_KEY = 'BClDzwzJRWCOz_wzmI9hOCFMYgYBOUc3nVCT2eiT8JXd1sHGuz5fkhID-I5qkRS-7LsVorS1PB_Ql-FieqmRr4';
 const VAPID_PRIVATE_KEY = '1cUDvOKPWwluqWbcq9cfcByPodhWmOpz68QivUc-9A';
 webpush.setVapidDetails('mailto:admin@classxi5.com', VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
@@ -36,7 +35,7 @@ app.use(session({
     cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 }
 }));
 
-// --- INIT TABEL OTOMATIS DI SUPABASE ---
+// --- FUNGSI INIT DATABASE ---
 async function initDB() {
     const client = await pool.connect();
     try {
@@ -98,7 +97,6 @@ async function initDB() {
         client.release();
     }
 }
-initDB().catch(console.error);
 
 // --- MIDDLEWARE AUTH ---
 const requireAuth = (req, res, next) => { if (!req.session.userId) return res.status(401).json({ error: 'Unauthorized' }); next(); };
@@ -222,5 +220,9 @@ app.get('/', (req, res) => { if (req.session.userId) return res.redirect('/dashb
 app.get('/dashboard', (req, res) => { if (!req.session.userId) return res.redirect('/'); res.sendFile(path.join(__dirname, 'public', 'dashboard.html')); });
 app.get('/chat', (req, res) => { if (!req.session.userId) return res.redirect('/'); res.sendFile(path.join(__dirname, 'public', 'chat.html')); });
 
+// --- NYALAIN SERVER DULU, BARU KONEK DB ---
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT}`);
+    initDB().catch(console.error);
+});
