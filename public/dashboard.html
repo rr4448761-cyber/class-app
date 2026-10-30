@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="theme-color" content="#6c5ce7">
+    <link rel="manifest" href="/manifest.json">
+    <title>Dashboard - Kelas XI.5</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { background: #f7f8fc; padding-bottom: 80px; }
+        .header { padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .badge { background: #6c5ce7; color: white; padding: 10px 15px; border-radius: 12px; font-weight: bold; font-size: 18px; box-shadow: 0 4px 10px rgba(108,92,231,0.3); }
+        .header-text span { font-size: 12px; color: #636e72; display: block; }
+        .header-text strong { font-size: 18px; color: #2d3436; }
+        .bell { background: white; padding: 12px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.05); cursor: pointer; position: relative; display: flex; align-items: center; justify-content: center; }
+        .bell svg { stroke: #f1c40f; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .bell-dot { position: absolute; top: 10px; right: 10px; width: 8px; height: 8px; background: #e74c3c; border-radius: 50%; display: none; }
+        .profile-card { background: linear-gradient(135deg, #6c5ce7, #4834d4); margin: 0 20px; border-radius: 24px; padding: 25px; color: white; position: relative; overflow: hidden; box-shadow: 0 10px 20px rgba(108,92,231,0.3); }
+        .profile-card::before { content: ''; position: absolute; top: -50px; right: -50px; width: 180px; height: 180px; background: rgba(255,255,255,0.1); border-radius: 50%; }
+        .profile-info { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; position: relative; z-index: 1; }
+        .profile-info img { width: 65px; height: 65px; border-radius: 50%; border: 3px solid white; object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .profile-info h4 { font-size: 13px; font-weight: normal; opacity: 0.9; margin-bottom: 4px; }
+        .profile-info h2 { font-size: 22px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stats-container { background: linear-gradient(135deg, #ff7f50, #ff6348); border-radius: 18px; padding: 18px; display: flex; justify-content: space-around; position: relative; z-index: 1; text-align: center; box-shadow: 0 4px 15px rgba(255,127,80,0.4); }
+        .stat-item h3 { font-size: 22px; margin-bottom: 5px; font-weight: bold; }
+        .stat-item p { font-size: 12px; opacity: 0.9; }
+        .divider { width: 1px; background: rgba(255,255,255,0.3); }
+        .search-bar { margin: 25px 20px; background: #3c37a6; padding: 15px 20px; border-radius: 15px; display: flex; align-items: center; gap: 12px; color: white; box-shadow: 0 5px 15px rgba(60,55,166,0.3); }
+        .search-bar svg { stroke: white; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+        .search-bar input { background: transparent; border: none; color: white; outline: none; font-size: 14px; width: 100%; }
+        .search-bar input::placeholder { color: rgba(255,255,260,0.6); }
+        .menu-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; padding: 0 20px; margin-bottom: 25px; }
+        .menu-item { background: white; padding: 15px 5px; border-radius: 16px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03); cursor: pointer; text-decoration: none; color: inherit; transition: 0.2s; }
+        .menu-item:active { transform: scale(0.95); }
+        .menu-icon { background: #f0f0ff; width: 45px; height: 45px; margin: 0 auto 10px; border-radius: 12px; display: flex; justify-content: center; align-items: center; }
+        .menu-item p { font-size: 11px; font-weight: 600; color: #636e72; }
+        .section-title { display: flex; justify-content: space-between; padding: 0 20px; margin-bottom: 15px; align-items: center; }
+        .section-title h3 { font-size: 16px; color: #2d3436; font-weight: 700; }
+        .section-title a { font-size: 13px; color: #6c5ce7; text-decoration: none; font-weight: bold; }
+        .schedule-card { background: white; margin: 0 20px 25px; border-radius: 16px; padding: 30px 20px; text-align: center; color: #b2bec3; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); border: 2px dashed #dfe6e9; }
+        .task-item { background: white; margin: 0 20px 12px; padding: 18px; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); border-left: 5px solid #6c5ce7; }
+        .task-item h4 { font-size: 14px; margin-bottom: 6px; color: #6c5ce7; }
+        .task-item p { font-size: 14px; color: #2d3436; font-weight: 600; margin-bottom: 8px; }
+        .task-item small { color: #e74c3c; font-size: 12px; background: #fdeaea; padding: 4px 8px; border-radius: 6px; display: inline-block; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0 20px; box-shadow: 0 -4px 20px rgba(0,0,0,0.05); border-top-left-radius: 25px; border-top-right-radius: 25px; z-index: 100; }
+        .nav-item { text-align: center; color: #b2bec3; text-decoration: none; font-size: 11px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
+        .nav-item svg { width: 24px; height: 24px; stroke: #b2bec3; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .nav-item.active { color: #6c5ce7; }
+        .nav-item.active svg { stroke: #6c5ce7; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 200; backdrop-filter: blur(3px); }
+        .modal-content { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; }
+        .modal-content h3 { margin-bottom: 20px; color: #2d3436; display: flex; align-items: center; gap: 10px; }
+        .modal-content input, .modal-content textarea, .modal-content select { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #dfe6e9; border-radius: 10px; font-family: inherit; font-size: 14px; background: #f9f9f9; }
+        .modal-content button { width: 100%; padding: 14px; background: #6c5ce7; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 14px; cursor: pointer; margin-top: 5px; }
+        .btn-cancel { background: #dfe6e9 !important; color: #636e72 !important; }
+        .schedule-item { background: white; margin: 0 20px 10px; padding: 15px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); display: flex; align-items: center; gap: 15px; border-left: 4px solid #6c5ce7; }
+        .schedule-time { background: #f0f0ff; color: #6c5ce7; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; text-align: center; min-width: 80px; }
+        .schedule-info h4 { font-size: 14px; color: #2d3436; margin-bottom: 4px; }
+        .schedule-info p { font-size: 12px; color: #636e72; }
+        #fabContainer { position:fixed; bottom:90px; right:20px; display:none; flex-direction:column; gap:10px; z-index:50; }
+        .fab-btn { border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .fab-green { width: 50px; height: 50px; background: #00b894; }
+        .fab-purple { width: 60px; height: 60px; background: #6c5ce7; }
+        .fab-btn svg { stroke: white; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+        .modal-close-btn { background:#b2bec3; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="badge">XI</div>
+            <div class="header-text"><span>Aplikasi Kelas</span><strong>CLASS-XI.5</strong></div>
+        </div>
+        <div class="bell" onclick="scrollToTasks()">
+            <svg width="22" height="22" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            <div class="bell-dot" id="notifDot"></div>
+        </div>
+    </div>
+    <div class="profile-card">
+        <div class="profile-info">
+            <img id="userAvatar" src="" alt="Avatar">
+            <div><h4>Selamat Datang,</h4><h2 id="userName">LOADING...</h2></div>
+        </div>
+        <div class="stats-container">
+            <div class="stat-item"><h3>0%</h3><p>Kehadiran</p></div>
+            <div class="divider"></div>
+            <div class="stat-item"><h3 id="taskCount">0</h3><p>Tugas Aktif</p></div>
+            <div class="divider"></div>
+            <div class="stat-item"><h3>-</h3><p>Nilai Rata-rata</p></div>
+        </div>
+    </div>
+    <div class="search-bar">
+        <svg width="18" height="18" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" placeholder="Cari jadwal, siswa, pengumuman...">
+    </div>
+    <div class="menu-grid">
+        <a href="#" class="menu-item" onclick="showAllSchedules()">
+            <div class="menu-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
+            <p>Jadwal</p>
+        </a>
+        <a href="#" class="menu-item">
+            <div class="menu-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div>
+            <p>Nilai</p>
+        </a>
+        <a href="#" class="menu-item">
+            <div class="menu-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#e67e22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></div>
+            <p>Ujian</p>
+        </a>
+        <a href="#" class="menu-item" onclick="scrollToTasks()">
+            <div class="menu-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d35400" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><line x1="9" y1="12" x2="15" y2="12"></line><line x1="9" y1="16" x2="15" y2="16"></line></svg></div>
+            <p>Tugas</p>
+        </a>
+        <a href="#" class="menu-item">
+            <div class="menu-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></div>
+            <p>Perpustakaan</p>
+        </a>
+        <a href="#" class="menu-item">
+            <div class="menu-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9b59b6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg></div>
+            <p>Kehadiran</p>
+        </a>
+        <a href="#" class="menu-item">
+            <div class="menu-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f1c40f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg></div>
+            <p>Keuangan</p>
+        </a>
+        <a href="#" class="menu-item">
+            <div class="menu-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#34495e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div>
+            <p>Lainnya</p>
+        </a>
+    </div>
+    <div class="section-title">
+        <h3>Jadwal Hari Ini</h3>
+        <a href="#" onclick="showAllSchedules()">Lihat semua</a>
+    </div>
+    <div id="todayScheduleContainer" style="margin-bottom: 25px;"></div>
+    <div class="section-title" id="taskSection"><h3>Pengumuman / Tugas</h3></div>
+    <div id="taskListContainer" style="margin-bottom: 30px;"></div>
+    
+    <div class="modal" id="taskModal">
+        <div class="modal-content">
+            <h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg> Buat Tugas Baru</h3>
+            <input type="text" id="taskSubject" placeholder="Mata Pelajaran">
+            <input type="text" id="taskTitle" placeholder="Judul Tugas">
+            <textarea id="taskDesc" placeholder="Deskripsi Tugas" rows="3"></textarea>
+            <input type="datetime-local" id="taskDue">
+            <button onclick="createTask()">Kirim Broadcast Tugas</button>
+            <button onclick="closeModal()" class="btn-cancel">Batal</button>
+        </div>
+    </div>
+
+    <div id="fabContainer">
+        <button class="fab-btn fab-green" onclick="openScheduleModal()">
+            <svg width="24" height="24" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><line x1="12" y1="14" x2="12" y2="18"></line><line x1="10" y1="16" x2="14" y2="16"></line></svg>
+        </button>
+        <button class="fab-btn fab-purple" onclick="openModal()">
+            <svg width="28" height="28" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+    </div>
+
+    <div class="bottom-nav">
+        <a href="/dashboard" class="nav-item active">
+            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            Beranda
+        </a>
+        <a href="#" class="nav-item" onclick="showAllSchedules()">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            Jadwal
+        </a>
+        <a href="/chat" class="nav-item">
+            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            Chat
+        </a>
+        <a href="#" class="nav-item">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            Siswa
+        </a>
+        <a href="#" class="nav-item" onclick="logout()">
+            <svg viewBox="0 0 24 24" style="stroke:#e74c3c;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            Logout
+        </a>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js'); }
+        let currentUser = null;
+        const socket = io();
+        const daysOfWeek = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'sabtu'];
+        let allSchedules = [];
+
+        async function init() {
+            try { const res = await fetch('/api/me'); if (!res.ok) throw new Error(); currentUser = await res.json(); } catch (e) { window.location.href = '/'; return; }
+            document.getElementById('userName').innerText = currentUser.name;
+            document.getElementById('userAvatar').src = currentUser.avatar;
+            if (currentUser.role === 'admin') document.getElementById('fabContainer').style.display = 'flex';
+            
+            loadTasks();
+            loadSchedules();
+            
+            socket.on('new_task_broadcast', (data) => {
+                loadTasks();
+                if(currentUser.role !== 'admin') {
+                    document.getElementById('notifDot').style.display = 'block';
+                    const toast = document.createElement('div');
+                    toast.style.cssText = 'position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#2d3436; color:white; padding:15px 25px; border-radius:10px; z-index:999; font-size:14px; box-shadow:0 10px 25px rgba(0,0,0,0.2); width:90%; max-width:400px; text-align:center;';
+                    toast.innerHTML = `<b>TUGAS BARU</b><br>${data.notifMessage}`;
+                    document.body.appendChild(toast);
+                    setTimeout(() => toast.remove(), 5000);
+                }
+            });
+            
+            socket.on('schedule_updated', () => { loadSchedules(); });
+        }
+
+        async function loadTasks() {
+            const res = await fetch('/api/tasks');
+            const tasks = await res.json();
+            document.getElementById('taskCount').innerText = tasks.length;
+            const container = document.getElementById('taskListContainer');
+            if (tasks.length === 0) { container.innerHTML = `<div style="text-align:center; padding:20px; color:#b2bec3; font-size:14px;">Belum ada tugas.</div>`; return; }
+            container.innerHTML = tasks.map(t => `<div class="task-item"><h4>${t.subject}</h4><p>${t.title}</p><small>Deadline: ${new Date(t.due_date).toLocaleString()}</small></div>`).join('');
+        }
+
+        async function loadSchedules() {
+            const res = await fetch('/api/schedules');
+            allSchedules = await res.json();
+            renderTodaySchedule();
+        }
+
+        function renderTodaySchedule() {
+            const today = daysOfWeek[new Date().getDay()];
+            const container = document.getElementById('todayScheduleContainer');
+            if (today === 'Sabtu' || today === 'Minggu') {
+                container.innerHTML = `<div class="schedule-card" style="margin:0 20px;">Hari ${today}. Libur, tidak ada jadwal.</div>`;
+                return;
+            }
+            const todaySchedules = allSchedules.filter(s => s.day === today);
+            if (todaySchedules.length === 0) {
+                container.innerHTML = `<div class="schedule-card" style="margin:0 20px;">Belum ada jadwal untuk hari ${today}.</div>`;
+                return;
+            }
+            container.innerHTML = todaySchedules.map(s => `<div class="schedule-item"><div class="schedule-time">${s.start_time}<br><span style="font-weight:normal; font-size:10px;">${s.end_time}</span></div><div class="schedule-info"><h4>${s.subject}</h4><p>${s.teacher} &middot; ${s.room}</p></div></div>`).join('');
+        }
+
+        function showAllSchedules() {
+            const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
+            let html = '';
