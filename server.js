@@ -20,7 +20,7 @@ const pool = new Pool({
 
 // --- KONFIGURASI VAPID ---
 const VAPID_PUBLIC_KEY = 'BClDzwzJRWCOz_wzmI9hOCFMYgYBOUc3nVCT2eiT8JXd1sHGuz5fkhID-I5qkRS-7LsVorS1PB_Ql-FieqmRr4';
-const VAPID_PRIVATE_KEY = '1cUDvOKPWwluqWbcq9cfcByPodhWmOpz68QivUc-9A';
+const VAPID_PRIVATE_KEY = 'UUxI4O8-FbRouAevSmBQ6o18hgL2G7mjG2g1gK2dX2I';
 webpush.setVapidDetails('mailto:admin@classxi5.com', VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
 
 app.use(express.json());
