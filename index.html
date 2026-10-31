@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login & Daftar - Kelas XI.5</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .auth-card { background: white; padding: 40px 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 380px; text-align: center; }
+        .logo { background: #6c5ce7; color: white; width: 60px; height: 60px; border-radius: 15px; display: flex; justify-content: center; align-items: center; font-size: 24px; font-weight: bold; margin: 0 auto 20px; box-shadow: 0 5px 15px rgba(108,92,231,0.4); }
+        h2 { margin: 0 0 10px; color: #2d3436; }
+        .subtitle { color: #636e72; margin-bottom: 30px; font-size: 14px; }
+        input { width: 100%; padding: 15px; margin-bottom: 15px; border: 1px solid #dfe6e9; border-radius: 10px; font-size: 14px; outline: none; background: #f9f9f9; }
+        input:focus { border-color: #6c5ce7; background: white; box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2); }
+        button { width: 100%; padding: 15px; background: #6c5ce7; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        button:hover { background: #5b4cc4; }
+        button:disabled { background: #b2bec3; }
+        .toggle-text { margin-top: 25px; font-size: 13px; color: #636e72; }
+        .toggle-text a { color: #6c5ce7; font-weight: bold; cursor: pointer; }
+        .message { font-size: 13px; margin-top: 15px; display: none; padding: 10px; border-radius: 8px; }
+        .message.error { color: #e74c3c; background: #fdeaea; display: block; }
+        .message.success { color: #27ae60; background: #e8f8f5; display: block; }
+        .form-section { display: none; }
+        .form-section.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="auth-card">
+        <div class="logo" id="logoBox">XI</div>
+        <h2 id="authTitle">Aplikasi Kelas XI.5</h2>
+        <p class="subtitle" id="authSubtitle">Silakan login menggunakan akun Anda</p>
+        <form id="loginForm" class="form-section active">
+            <input type="text" id="loginUsername" placeholder="Username" required autocomplete="off">
+            <input type="password" id="loginPassword" placeholder="Password" required>
+            <button type="submit" id="btnLogin">Masuk Dashboard</button>
+            <div class="message" id="loginMsg"></div>
+        </form>
+        <form id="registerForm" class="form-section">
+            <input type="text" id="regFullName" placeholder="Nama Lengkap" required autocomplete="off">
+            <input type="text" id="regUsername" placeholder="Buat Username (min. 3 karakter)" required autocomplete="off">
+            <input type="password" id="regPassword" placeholder="Buat Password (min. 6 karakter)" required>
+            <button type="submit" id="btnRegister">Daftar Akun</button>
+            <div class="message" id="regMsg"></div>
+        </form>
+        <div class="toggle-text" id="toggleContainer">
+            Belum punya akun? <a onclick="switchMode('register')">Daftar di sini</a>
+        </div>
+    </div>
+    <script>
+        function switchMode(mode) {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const toggleContainer = document.getElementById('toggleContainer');
+            const authTitle = document.getElementById('authTitle');
+            const authSubtitle = document.getElementById('authSubtitle');
+            const logoBox = document.getElementById('logoBox');
+            document.querySelectorAll('.message').forEach(m => m.style.display = 'none');
+            
+            if (mode === 'register') {
+                loginForm.classList.remove('active');
+                registerForm.classList.add('active');
+                authTitle.innerText = 'Buat Akun Baru';
+                authSubtitle.innerText = 'Daftarkan diri Anda untuk mengakses aplikasi';
+                logoBox.innerText = '+';
+                toggleContainer.innerHTML = 'Sudah punya akun? <a onclick="switchMode(\'login\')">Login di sini</a>';
+            } else {
+                registerForm.classList.remove('active');
+                loginForm.classList.add('active');
+                authTitle.innerText = 'Aplikasi Kelas XI.5';
+                authSubtitle.innerText = 'Silakan login menggunakan akun Anda';
+                logoBox.innerText = 'XI';
+                toggleContainer.innerHTML = 'Belum punya akun? <a onclick="switchMode(\'register\')">Daftar di sini</a>';
+            }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnLogin');
+            const msg = document.getElementById('loginMsg');
+            btn.innerText = 'Memproses...'; btn.disabled = true;
+            msg.style.display = 'none';
+
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: document.getElementById('loginUsername').value,
+                        password: document.getElementById('loginPassword').value
+                    })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    window.location.href = '/dashboard';
+                } else {
+                    msg.innerText = data.message;
+                    msg.className = 'message error';
+                    btn.innerText = 'Masuk Dashboard';
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                msg.innerText = 'Koneksi server terputus.';
+                msg.className = 'message error';
+                btn.innerText = 'Masuk Dashboard';
+                btn.disabled = false;
+            }
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnRegister');
+            const msg = document.getElementById('regMsg');
+            btn.innerText = 'Mendaftar...'; btn.disabled = true;
+            msg.style.display = 'none';
+
+            try {
+                const res = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        full_name: document.getElementById('regFullName').value,
+                        username: document.getElementById('regUsername').value,
+                        password: document.getElementById('regPassword').value
+                    })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    msg.innerText = '✅ ' + data.message;
+                    msg.className = 'message success';
+                    setTimeout(() => {
+                        switchMode('login');
+                        document.getElementById('loginUsername').value = document.getElementById('regUsername').value;
+                        document.getElementById('regFullName').value = '';
+                        document.getElementById('regUsername').value = '';
+                        document.getElementById('regPassword').value = '';
+                    }, 1500);
+                } else {
+                    msg.innerText = data.message;
+                    msg.className = 'message error';
+                }
+            } catch (err) {
+                msg.innerText = 'Koneksi server terputus.';
+                msg.className = 'message error';
+            }
+            btn.innerText = 'Daftar Akun'; 
+            btn.disabled = false;
+        });
+    </script>
+</body>
+</html>
