@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <title>Status - Kelas XI.5</title>
+    <title>Status - WA Clone</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
-        body { background: #111; color: #fff; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+        body { background: #0b141a; color: #fff; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
         
-        .header { padding: 20px; display: flex; align-items: center; gap: 15px; background: rgba(0,0,0,0.5); position: absolute; top: 0; left: 0; width: 100%; z-index: 10; }
-        .header a { color: #fff; text-decoration: none; font-size: 24px; }
+        .header { padding: 20px; display: flex; align-items: center; gap: 15px; background: #202c33; position: absolute; top: 0; left: 0; width: 100%; z-index: 10; }
+        .header a { color: #00a884; text-decoration: none; font-size: 20px; font-weight: bold; }
         .header h2 { font-size: 18px; font-weight: 600; }
 
         .main-content { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; }
@@ -17,23 +17,22 @@
         .story-viewer { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 100; }
         .story-viewer.active { display: block; }
         .progress-bar-container { position: absolute; top: 10px; left: 10px; right: 10px; height: 3px; background: rgba(255,255,255,0.3); z-index: 102; display: flex; gap: 5px; }
-        .progress-bar { flex: 1; height: 100%; background: #fff; width: 0%; transition: width 5s linear; }
+        .progress-bar { flex: 1; height: 100%; background: #fff; width: 0%; transition: width 15s linear; }
         
-        .story-media { width: 100%; height: 100%; object-fit: contain; }
-        .story-text { position: absolute; bottom: 20%; left: 10%; right: 10%; text-align: center; font-size: 24px; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        .story-media { width: 100%; height: 100%; object-fit: contain; background: #000; }
+        .story-text { position: absolute; bottom: 15%; left: 10%; right: 10%; text-align: center; font-size: 20px; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
         .story-user { position: absolute; top: 30px; left: 20px; display: flex; align-items: center; gap: 10px; z-index: 102; font-weight: bold; }
-        .story-user img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fff; }
+        .story-user img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #00a884; }
         
-        .create-btn { background: #6c5ce7; color: white; padding: 15px 30px; border-radius: 30px; font-size: 16px; font-weight: bold; border: none; cursor: pointer; margin-top: 20px; display: flex; align-items: center; gap: 10px; box-shadow: 0 10px 20px rgba(108,92,231,0.4); }
-        .create-btn svg { width: 24px; height: 24px; fill: currentColor; }
-
-        .input-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 200; justify-content: center; align-items: center; }
+        .create-btn { background: #00a884; color: #111b21; padding: 15px 30px; border-radius: 30px; font-size: 16px; font-weight: bold; border: none; cursor: pointer; display: flex; align-items: center; gap: 10px; margin-top: 20px; }
+        
+        .input-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 200; justify-content: center; align-items: center; }
         .input-modal.active { display: flex; }
-        .input-box { background: #222; padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; }
-        .input-box textarea { width: 100%; height: 100px; padding: 15px; border-radius: 10px; border: none; background: #333; color: #fff; margin-bottom: 15px; font-size: 16px; resize: none; }
+        .input-box { background: #202c33; padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; }
+        .input-box textarea { width: 100%; height: 100px; padding: 15px; border-radius: 10px; border: none; background: #2a3942; color: #fff; margin-bottom: 15px; font-size: 16px; resize: none; }
         .input-box input[type="file"] { display: none; }
-        .input-box label { display: block; background: #444; color: #fff; padding: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; }
-        .input-box button { width: 100%; padding: 15px; background: #6c5ce7; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; }
+        .input-box label { display: block; background: #2a3942; color: #00a884; padding: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; }
+        .input-box button { width: 100%; padding: 15px; background: #00a884; color: #111b21; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -43,113 +42,99 @@
     </div>
 
     <div class="main-content">
-        <p style="color:#aaa; text-align:center; padding:0 20px;">Pilih kontak untuk melihat status, atau buat status baru.</p>
+        <p style="color:#8696a0; text-align:center; padding:0 20px; margin-bottom:20px;">Bagikan foto atau video (maks 1 menit) yang hilang setelah 24 jam.</p>
         <button class="create-btn" onclick="document.getElementById('inputModal').classList.add('active')">
-            <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-            Buat Status Baru
+            + Buat Status Baru
         </button>
     </div>
 
-    <!-- Modal Buat Status -->
     <div class="input-modal" id="inputModal">
         <div class="input-box">
-            <h3 style="margin-bottom:15px;">Buat Status</h3>
+            <h3 style="margin-bottom:15px; color:#00a884;">Buat Status</h3>
             <form onsubmit="submitStatus(event)">
-                <textarea id="statusText" placeholder="Ketik teks status... (opsional)"></textarea>
-                <input type="file" id="statusMedia" accept="image/*" onchange="document.getElementById('fileName').innerText = this.files[0].name">
-                <label for="statusMedia" id="fileName">Pilih Foto (Opsional)</label>
+                <textarea id="statusText" placeholder="Ketik teks (opsional)..."></textarea>
+                <input type="file" id="statusMedia" accept="image/*,video/*" onchange="document.getElementById('fileName').innerText = this.files[0].name">
+                <label for="statusMedia" id="fileName">Pilih Foto / Video (Maks 1 Menit)</label>
                 <button type="submit">Unggah Status</button>
-                <button type="button" style="background:#444; margin-top:10px;" onclick="document.getElementById('inputModal').classList.remove('active')">Batal</button>
+                <button type="button" style="background:#2a3942; color:#fff;" onclick="document.getElementById('inputModal').classList.remove('active')">Batal</button>
             </form>
         </div>
     </div>
 
-    <!-- Layar Lihat Status -->
     <div class="story-viewer" id="storyViewer">
         <div class="progress-bar-container" id="progressContainer"></div>
         <div class="story-user" id="storyUser"></div>
+        
         <img id="viewerImage" class="story-media" style="display:none;">
+        <video id="viewerVideo" class="story-media" style="display:none;" autoplay controls></video>
+        
         <div id="viewerText" class="story-text"></div>
         <div style="position: absolute; top:0; left:0; right:0; bottom:0; z-index:101;" onclick="closeStory()"></div>
     </div>
 
     <script>
-        let currentUser = null;
-        let storyTimeout;
+        let currentUser = null; let storyTimeout;
 
         async function init() {
-            const res = await fetch('/api/me');
-            if (!res.ok) window.location.href = '/';
+            const res = await fetch('/api/me'); if (!res.ok) window.location.href = '/';
             currentUser = await res.json();
-            
-            // Cek apakah ada parameter ?id=xxx (klik dari dashboard)
-            const urlParams = new URLSearchParams(window.location.search);
-            const targetUserId = urlParams.get('id');
-            if (targetUserId) viewUserStatus(targetUserId);
+            const urlParams = new URLSearchParams(window.location.search); const id = urlParams.get('id');
+            if (id) viewUserStatus(id);
         }
 
         async function submitStatus(e) {
             e.preventDefault();
             const text = document.getElementById('statusText').value;
             const file = document.getElementById('statusMedia').files[0];
+            if (!text && !file) return alert('Isi teks atau pilih file!');
             
-            if (!text && !file) return alert('Isi teks atau pilih foto!');
-            
-            let mediaB64 = null;
             if (file) {
+                const type = file.type.startsWith('image') ? 'image' : 'video';
+                if(type === 'video' && file.size > 20 * 1024 * 1024) return alert('Video terlalu besar! Maks 20MB.');
+                
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
-                reader.onload = async () => {
-                    await sendStatus(reader.result, text);
-                };
-            } else {
-                await sendStatus(null, text);
-            }
+                reader.onload = async () => { await sendStatus(reader.result, type, text); };
+            } else { await sendStatus(null, null, text); }
         }
 
-        async function sendStatus(media, text) {
-            const res = await fetch('/api/stories', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ media, text })
-            });
-            if (res.ok) {
-                alert('Status berhasil diunggah!');
-                window.location.href = '/dashboard';
-            } else alert('Gagal upload.');
+        async function sendStatus(media, media_type, text) {
+            const res = await fetch('/api/stories', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ media, media_type, text }) });
+            if (res.ok) { alert('Status diunggah!'); window.location.href = '/dashboard'; } else alert('Gagal upload.');
         }
 
         async function viewUserStatus(userId) {
-            const res = await fetch('/api/stories');
-            const stories = await res.json();
-            
-            // Filter status milik user yang diklik (ambil yang paling baru)
-            const userStory = stories.find(s => s.user_id == userId);
-            if (!userStory) return alert('Status sudah kedaluwarsa (lebih dari 24 jam).');
+            const res = await fetch('/api/stories'); const stories = await res.json();
+            const userStories = stories.filter(s => s.user_id == userId);
+            if (userStories.length === 0) return alert('Status sudah kedaluwarsa.');
+            const story = userStories[0]; // Ambil yg terbaru
 
             document.getElementById('storyViewer').classList.add('active');
-            document.getElementById('storyUser').innerHTML = `<img src="${userStory.avatar_url || 'https://ui-avatars.com/api/?name='+userStory.full_name}"><span>${userStory.full_name}</span>`;
+            document.getElementById('storyUser').innerHTML = `<img src="${story.avatar_url || 'https://ui-avatars.com/api/?name='+story.full_name}"><span>${story.full_name}</span>`;
             
-            if (userStory.media) {
-                const img = document.getElementById('viewerImage');
-                img.src = userStory.media; img.style.display = 'block';
-            }
-            
-            if (userStory.text) {
-                document.getElementById('viewerText').innerText = userStory.text;
-            }
+            const img = document.getElementById('viewerImage'); const vid = document.getElementById('viewerVideo');
+            img.style.display = 'none'; vid.style.display = 'none';
 
-            // Progress bar animasi 5 detik
+            if (story.media) {
+                if (story.media_type === 'video') { vid.src = story.media; vid.style.display = 'block'; vid.play(); }
+                else { img.src = story.media; img.style.display = 'block'; }
+            }
+            
+            if (story.text) document.getElementById('viewerText').innerText = story.text;
+
             const progress = document.getElementById('progressContainer');
             progress.innerHTML = `<div class="progress-bar" id="pBar"></div>`;
             setTimeout(() => { document.getElementById('pBar').style.width = '100%'; }, 100);
 
-            // Auto close setelah 5 detik
-            storyTimeout = setTimeout(() => { closeStory(); }, 5000);
+            // Auto close (15 detik untuk foto/teks, video ngikutin durasi)
+            let duration = story.media_type === 'video' ? (vid.duration * 1000) || 15000 : 15000;
+            storyTimeout = setTimeout(() => { closeStory(); }, duration);
         }
 
         function closeStory() {
             document.getElementById('storyViewer').classList.remove('active');
             document.getElementById('viewerImage').style.display = 'none';
+            document.getElementById('viewerVideo').pause(); document.getElementById('viewerVideo').style.display = 'none';
             document.getElementById('viewerText').innerText = '';
             document.getElementById('progressContainer').innerHTML = '';
             clearTimeout(storyTimeout);

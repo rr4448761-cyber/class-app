@@ -3,202 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="manifest" href="/manifest.json">
-    <title>Chat - Kelas XI.5</title>
+    <title>Chat - WhatsApp Clone</title>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
-        body { background: #f7f8fc; display: flex; height: 100vh; overflow: hidden; }
-        .sidebar { width: 35%; min-width: 280px; background: white; border-right: 1px solid #eee; display: flex; flex-direction: column; transition: 0.3s; }
-        .sidebar-header { padding: 20px; background: #6c5ce7; color: white; display: flex; align-items: center; gap: 15px; }
-        .sidebar-header h2 { font-size: 18px; font-weight: 600; }
-        .sidebar-header a { color: white; text-decoration: none; display: flex; align-items: center; }
-        .sidebar-header a svg { stroke: white; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
-        .contact-list { overflow-y: auto; flex: 1; }
-        .contact { padding: 15px 20px; display: flex; align-items: center; gap: 15px; cursor: pointer; border-bottom: 1px solid #f0f0f0; transition: 0.2s; }
-        .contact:hover, .contact.active { background: #f0f0ff; border-left: 4px solid #6c5ce7; }
-        .contact .avatar-circle { width: 50px; height: 50px; border-radius: 50%; background: #dfe6e9; display: flex; justify-content: center; align-items: center; overflow: hidden; flex-shrink: 0; }
-        .contact .avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
-        .contact .avatar-circle svg { width: 25px; height: 25px; fill: #b2bec3; }
-        .contact-info h4 { font-size: 15px; color: #2d3436; margin-bottom: 4px; }
-        .contact-info p { font-size: 12px; color: #b2bec3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
-        .chat-area { flex: 1; display: flex; flex-direction: column; background: #efeae2; position: relative; }
-        .chat-header { padding: 15px 20px; background: #6c5ce7; color: white; display: flex; align-items: center; gap: 15px; z-index: 10; }
-        .chat-header .avatar-circle { width: 40px; height: 40px; border-radius: 50%; background: white; display: flex; justify-content: center; align-items: center; overflow: hidden; }
-        .chat-header .avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
-        .chat-header .avatar-circle svg { width: 20px; height: 20px; fill: #b2bec3; }
-        .chat-header-info { flex: 1; }
-        .chat-header h3 { font-size: 16px; font-weight: 600; }
-        .chat-header p { font-size: 12px; opacity: 0.8; }
-        .call-actions { display: flex; gap: 10px; }
-        .call-btn { background: rgba(255,255,255,0.2); border: none; width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; color: white; }
-        .call-btn svg { width: 18px; height: 18px; fill: currentColor; }
-        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-size: cover; background-blend-mode: overlay; }
-        .message { max-width: 70%; padding: 10px 15px; border-radius: 12px; font-size: 14px; position: relative; line-height: 1.5; box-shadow: 0 1px 2px rgba(0,0,0,0.1); word-wrap: break-word; }
-        .message img { max-width: 100%; border-radius: 8px; margin-top: 5px; display: block; }
-        .message.received { background: white; align-self: flex-start; border-top-left-radius: 0; }
-        .message.sent { background: #dcf8c6; align-self: flex-end; border-top-right-radius: 0; }
-        .message .sender { font-size: 11px; font-weight: bold; color: #6c5ce7; margin-bottom: 4px; display: block; }
-        .message .time { font-size: 10px; color: #999; text-align: right; margin-top: 4px; display: block; }
-        .chat-input { padding: 10px 15px; background: white; display: flex; gap: 10px; align-items: center; z-index: 10; }
-        .chat-input input[type="text"] { flex: 1; padding: 14px 20px; border: 1px solid #dfe6e9; border-radius: 25px; outline: none; font-size: 14px; background: #f9f9f9; }
-        .btn-attach { background: #dfe6e9; color: #636e72; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
-        .btn-attach svg { width: 20px; height: 20px; fill: currentColor; }
-        .chat-input button.btn-send { background: #6c5ce7; color: white; border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
-        .chat-input button.btn-send svg { stroke: white; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
-        .back-btn { display: none; color: white; margin-right: 10px; cursor: pointer; align-items: center; }
-        .back-btn svg { stroke: white; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
-        @media (max-width: 768px) {
-            body { flex-direction: column; }
-            .sidebar { width: 100%; height: 100vh; position: absolute; z-index: 20; }
-            .sidebar.hide { display: none; }
-            .chat-area { width: 100%; height: 100vh; position: absolute; z-index: 30; display: none; }
-            .chat-area.show { display: flex; }
-            .back-btn { display: flex !important; }
-        }
+        :root { --bg: #efeae2; --chat-bg: #efeae2; --recv: #fff; --sent: #d9fdd3; --header: #075e54; }
+        body.dark { --bg: #0b141a; --chat-bg: #0b141a; --recv: #202c33; --sent: #005c4b; --header: #202c33; }
+        
+        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; transition: background 0.3s; }
+        body { display: flex; height: 100vh; overflow: hidden; background: var(--bg); }
+        
+        .sidebar { width: 35%; min-width: 300px; background: var(--recv); display: flex; flex-direction: column; }
+        .sidebar-header { padding: 15px 20px; background: var(--header); color: white; display: flex; align-items: center; gap: 15px; font-weight: 600; }
+        .contact-list { flex: 1; overflow-y: auto; }
+        .contact { padding: 15px 20px; display: flex; align-items: center; gap: 15px; cursor: pointer; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .contact:hover, .contact.active { background: rgba(0,0,0,0.05); }
+        .avatar-circle { width: 50px; height: 50px; border-radius: 50%; background: #ccc; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        .avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .chat-area { flex: 1; display: flex; flex-direction: column; background: var(--chat-bg); position: relative; }
+        .chat-header { padding: 10px 20px; background: var(--header); color: white; display: flex; align-items: center; gap: 15px; }
+        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-size: cover; }
+        .message { max-width: 75%; padding: 8px 12px; border-radius: 8px; font-size: 14px; position: relative; box-shadow: 0 1px 1px rgba(0,0,0,0.1); color: #000; }
+        .message.received { background: var(--recv); align-self: flex-start; border-top-left-radius: 0; }
+        .message.sent { background: var(--sent); align-self: flex-end; border-top-right-radius: 0; }
+        .message img, .message video { max-width: 100%; border-radius: 6px; margin-top: 5px; display: block; }
+        .message audio { max-width: 100%; margin-top: 5px; }
+        .message .time { font-size: 10px; color: #888; float: right; margin: 5px 0 0 10px; }
+        
+        .chat-input { padding: 10px; background: var(--header); display: flex; gap: 8px; align-items: center; }
+        .chat-input input[type="text"] { flex: 1; padding: 12px; border-radius: 20px; border: none; outline: none; }
+        .btn-icon { background: transparent; border: none; color: white; cursor: pointer; display: flex; justify-content: center; align-items: center; padding: 5px; }
+        .btn-send { background: #00a884; border-radius: 50%; width: 45px; height: 45px; display: flex; justify-content: center; align-items: center; border: none; color: white; cursor: pointer; }
+        
+        .video-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1000; flex-direction: column; }
+        .video-container.active { display: flex; }
+        .remote-video { flex: 1; width: 100%; object-fit: cover; }
+        .local-video { position: absolute; top: 20px; right: 20px; width: 100px; height: 150px; object-fit: cover; border-radius: 10px; border: 2px solid white; }
+        
+        @media (max-width: 768px) { .sidebar { width: 100%; position: absolute; z-index: 20; } .sidebar.hide { display: none; } .chat-area { width: 100%; position: absolute; z-index: 30; display: none; } .chat-area.show { display: flex; } .back-btn { display: flex !important; } }
+        .back-btn { display: none; background: transparent; border: none; color: white; margin-right: 10px; }
     </style>
 </head>
 <body>
     <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <a href="/dashboard"><svg width="22" height="22" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></a>
-            <h2>Chat Kelas</h2>
-        </div>
+        <div class="sidebar-header">Chat Kelas</div>
         <div class="contact-list" id="contactList">
-            <div class="contact active" onclick="openChat('group', 'Grup XI.5', '')">
-                <div class="avatar-circle">
-                    <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                </div>
-                <div class="contact-info"><h4>Grup Kelas XI.5</h4><p>Semua siswa & admin</p></div>
+            <div class="contact active" onclick="openChat('group', 'Grup Kelas')">
+                <div class="avatar-circle"><svg viewBox="0 0 24 24" fill="#888"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div>
+                <div><h4 style="font-size:15px; color:#333;">Grup Kelas</h4><p style="font-size:12px; color:#888;">Semua siswa & admin</p></div>
             </div>
         </div>
     </div>
+
     <div class="chat-area" id="chatArea">
         <div class="chat-header">
-            <div class="back-btn" onclick="closeChatMobile()"><svg width="22" height="22" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></div>
-            <div class="avatar-circle" id="chatHeaderAvatar"></div>
-            <div class="chat-header-info">
-                <h3 id="chatName">Grup Kelas XI.5</h3>
-                <p><i class="fas fa-circle" style="font-size:8px; color:#2ecc71;"></i> Online</p>
-            </div>
-            <!-- Tombol Panggilan -->
-            <div class="call-actions">
-                <button class="call-btn" onclick="startCall('voice')" title="Voice Call">
-                    <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
-                </button>
-                <button class="call-btn" onclick="startCall('video')" title="Video Call">
-                    <svg viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
-                </button>
-            </div>
+            <button class="back-btn" onclick="closeChatMobile()">&#8592;</button>
+            <div id="chatHeaderName" style="font-weight:bold; flex:1;">Grup Kelas</div>
         </div>
         <div class="chat-messages" id="chatMessages"></div>
         <div class="chat-input">
-            <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="sendImage(event)">
-            <button class="btn-attach" onclick="document.getElementById('imageInput').click()"><svg viewBox="0 0 24 24"><path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5a2.5 2.5 0 0 1 5 0v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5a2.5 2.5 0 0 0 5 0V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"/></svg></button>
+            <input type="file" id="mediaInput" accept="image/*,video/*" style="display:none" onchange="sendMedia(event)">
+            <button class="btn-icon" onclick="document.getElementById('mediaInput').click()">📎</button>
+            <button class="btn-icon" id="micBtn" onclick="toggleRecording()">🎤</button>
             <input type="text" id="msgInput" placeholder="Ketik pesan..." onkeypress="handleEnter(event)">
-            <button class="btn-send" onclick="sendMessage()"><svg width="22" height="22" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
+            <button class="btn-send" onclick="sendMessage()">➤</button>
         </div>
     </div>
+
+    <div class="video-container" id="videoContainer">
+        <video class="remote-video" id="remoteVideo" autoplay playsinline></video>
+        <video class="local-video" id="localVideo" autoplay muted playsinline></video>
+        <div style="padding:20px; background:#222; text-align:center;"><button onclick="endCall()" style="background:#ff4757; color:white; border:none; padding:10px 20px; border-radius:5px;">Tutup Panggilan</button></div>
+    </div>
+
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        let currentUser = null;
-        let activeChatId = 'group';
-        let activeChatName = 'Grup XI.5';
+        let currentUser = null; let activeChatId = 'group'; let activeChatName = 'Grup Kelas';
         const socket = io();
+        let peer = null; let localStream = null; let currentCall = null;
 
-        function getAvatarHTML(url) {
-            if (url) return `<img src="${url}">`;
-            return `<svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
-        }
-
-        async function init() {
-            try { const res = await fetch('/api/me'); if (!res.ok) throw new Error(); currentUser = await res.json(); } catch (e) { window.location.href = '/'; return; }
-            
-            const usersRes = await fetch('/api/users');
-            const users = await usersRes.json();
-            const contactList = document.getElementById('contactList');
-            
-            users.forEach(u => {
-                const div = document.createElement('div');
-                div.className = 'contact'; div.id = `contact-${u.id}`;
-                div.onclick = () => openChat(u.id, u.full_name, u.avatar_url);
-                div.innerHTML = `<div class="avatar-circle">${getAvatarHTML(u.avatar_url)}</div>
-                                 <div class="contact-info"><h4>${u.full_name}</h4><p>Chat pribadi</p></div>`;
-                contactList.appendChild(div);
-            });
-
-            socket.emit('join_chat', { room: 'group' });
-            socket.emit('join_chat', { room: 'dm', userId: currentUser.id });
-            
-            socket.on('receive_message', (msg) => {
-                if (activeChatId === 'group' && msg.receiver_id === null) appendMessage(msg, false);
-                else if (activeChatId !== 'group' && (msg.sender_id == activeChatId || msg.receiver_id == activeChatId)) appendMessage(msg, msg.sender_id == currentUser.id);
-            });
-            openChat('group', 'Grup XI.5', '');
-        }
-
-        async function openChat(id, name, avatar) {
-            activeChatId = id;
-            activeChatName = name;
-            document.getElementById('chatName').innerText = name;
-            document.getElementById('chatHeaderAvatar').innerHTML = getAvatarHTML(avatar);
-            
-            document.querySelectorAll('.contact').forEach(c => c.classList.remove('active'));
-            if(id === 'group') document.querySelectorAll('.contact')[0].classList.add('active');
-            else document.getElementById(`contact-${id}`)?.classList.add('active');
-            
-            document.getElementById('sidebar').classList.add('hide');
-            document.getElementById('chatArea').classList.add('show');
-
-            const res = await fetch(`/api/messages/${id}`);
-            const messages = await res.json();
-            const msgContainer = document.getElementById('chatMessages');
-            msgContainer.innerHTML = '';
-            messages.forEach(m => appendMessage(m, m.sender_id == currentUser.id));
-            msgContainer.scrollTop = msgContainer.scrollHeight;
-        }
-
-        function appendMessage(msg, isMine) {
+        // Optimistic UI (Langsung tampil tanpa nunggu server)
+        function appendMessage(msg, isMine, tempId = null) {
             const div = document.createElement('div');
             div.className = `message ${isMine ? 'sent' : 'received'}`;
-            let senderHtml = (!isMine && activeChatId === 'group') ? `<span class="sender">${msg.full_name}</span>` : '';
-            const timeStr = new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            let imgHtml = msg.image ? `<img src="${msg.image}">` : '';
-            let textHtml = msg.message ? `<p>${msg.message}</p>` : '';
+            if(tempId) div.id = tempId;
             
-            div.innerHTML = `${senderHtml}${imgHtml}${textHtml}<span class="time">${timeStr}</span>`;
+            let mediaHtml = '';
+            if (msg.media) {
+                if (msg.media_type === 'image') mediaHtml = `<img src="${msg.media}">`;
+                else if (msg.media_type === 'video') mediaHtml = `<video src="${msg.media}" controls></video>`;
+                else if (msg.media_type === 'audio') mediaHtml = `<audio src="${msg.media}" controls></audio>`;
+            }
+            
+            const timeStr = new Date(msg.created_at || new Date()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            div.innerHTML = `${mediaHtml}<p>${msg.message || ''}</p><span class="time">${timeStr} ${isMine ? '✓' : ''}</span>`;
+            
             const container = document.getElementById('chatMessages');
             container.appendChild(div);
             container.scrollTop = container.scrollHeight;
         }
 
-        function sendMessage() {
-            const input = document.getElementById('msgInput');
-            const text = input.value.trim();
-            if (!text) return;
-            socket.emit('send_message', { sender_id: currentUser.id, sender_name: currentUser.name, sender_avatar: currentUser.avatar, receiver_id: activeChatId === 'group' ? 'group' : activeChatId, message: text, image: null });
-            input.value = '';
+        async function init() {
+            try { const res = await fetch('/api/me'); if(!res.ok) throw new Error(); currentUser = await res.json(); } catch(e) { window.location.href = '/'; return; }
+            
+            peer = new Peer(`class-xi5-user-${currentUser.id}`, { config: { 'iceServers': [{ urls: 'stun:stun.l.google.com:19302' }] } });
+            peer.on('call', (call) => { 
+                if(confirm('Ada panggilan masuk. Terima?')) {
+                    navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
+                        localStream = stream; document.getElementById('localVideo').srcObject = stream; document.getElementById('videoContainer').classList.add('active');
+                        call.answer(stream); currentCall = call;
+                        call.on('stream', remote => { document.getElementById('remoteVideo').srcObject = remote; });
+                    });
+                } else call.close();
+            });
+
+            const usersRes = await fetch('/api/users'); const users = await usersRes.json();
+            const contactList = document.getElementById('contactList');
+            users.forEach(u => {
+                const div = document.createElement('div'); div.className = 'contact';
+                div.onclick = () => openChat(u.id, u.full_name);
+                div.innerHTML = `<div class="avatar-circle">${u.avatar_url ? `<img src="${u.avatar_url}">` : `<svg viewBox="0 0 24 24" fill="#888"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z"/></svg>`}</div>
+                                 <div><h4 style="font-size:15px; color:#333;">${u.full_name}</h4><p style="font-size:12px; color:#888;">Chat pribadi</p></div>`;
+                contactList.appendChild(div);
+            });
+
+            socket.emit('join_chat', { room: 'group' }); socket.emit('join_chat', { room: 'dm', userId: currentUser.id });
+            
+            // Tangkap Pesan Masuk
+            socket.on('receive_message', (msg) => {
+                // Hapus pesan sementara (temp) jika ini pesan kita sendiri yang sukses terkirim
+                if (msg.sender_id == currentUser.id) {
+                    const temp = document.getElementById(`temp-${msg.id}`);
+                    if(temp) temp.remove(); 
+                }
+                if (activeChatId === 'group' && msg.receiver_id === null) appendMessage(msg, false);
+                else if (activeChatId !== 'group' && (msg.sender_id == activeChatId || msg.receiver_id == activeChatId)) appendMessage(msg, msg.sender_id == currentUser.id);
+            });
+
+            openChat('group', 'Grup Kelas');
         }
 
-        function sendImage(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+        async function openChat(id, name) {
+            activeChatId = id; document.getElementById('chatHeaderName').innerText = name;
+            document.getElementById('sidebar').classList.add('hide'); document.getElementById('chatArea').classList.add('show');
+            const res = await fetch(`/api/messages/${id}`); const messages = await res.json();
+            const msgContainer = document.getElementById('chatMessages'); msgContainer.innerHTML = '';
+            messages.forEach(m => appendMessage(m, m.sender_id == currentUser.id));
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('msgInput'); const text = input.value.trim();
+            if (!text) return;
+            const tempId = `temp-${Date.now()}`;
+            // 1. TAMPILKAN LANGSUNG (Optimistic)
+            appendMessage({ message: text, sender_id: currentUser.id }, true, tempId);
+            input.value = '';
+            // 2. KIRIM KE SERVER
+            socket.emit('send_message', { sender_id: currentUser.id, sender_name: currentUser.name, receiver_id: activeChatId, message: text, media: null, media_type: null });
+        }
+
+        function sendMedia(event) {
+            const file = event.target.files[0]; if (!file) return;
+            const type = file.type.startsWith('image') ? 'image' : 'video';
             const reader = new FileReader();
             reader.onload = function(e) {
-                socket.emit('send_message', { sender_id: currentUser.id, sender_name: currentUser.name, sender_avatar: currentUser.avatar, receiver_id: activeChatId === 'group' ? 'group' : activeChatId, message: '', image: e.target.result });
-                event.target.value = ''; // Reset input
+                appendMessage({ media: e.target.result, media_type: type }, true);
+                socket.emit('send_message', { sender_id: currentUser.id, sender_name: currentUser.name, receiver_id: activeChatId, message: '', media: e.target.result, media_type: type });
+                event.target.value = '';
             };
             reader.readAsDataURL(file);
         }
 
-        // FITUR PANGGILAN (JITSI MEET)
-        function startCall(type) {
-            const roomName = `ClassXI5-${activeChatId === 'group' ? 'Group' : activeChatId}`;
-            const url = `https://meet.jit.si/${roomName}`;
-            window.open(url, '_blank');
+        // VN Logic
+        let mediaRecorder; let audioChunks = []; let isRecording = false;
+        async function toggleRecording() {
+            const micBtn = document.getElementById('micBtn');
+            if (!isRecording) {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream); audioChunks = [];
+                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                mediaRecorder.onstop = () => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(new Blob(audioChunks, { type: 'audio/webm' }));
+                    reader.onloadend = () => {
+                        appendMessage({ media: reader.result, media_type: 'audio' }, true);
+                        socket.emit('send_message', { sender_id: currentUser.id, sender_name: currentUser.name, receiver_id: activeChatId, message: '', media: reader.result, media_type: 'audio' });
+                    };
+                };
+                mediaRecorder.start(); isRecording = true; micBtn.style.color = 'red';
+            } else { mediaRecorder.stop(); isRecording = false; micBtn.style.color = 'white'; mediaRecorder.stream.getTracks().forEach(t => t.stop()); }
         }
 
         function handleEnter(e) { if (e.key === 'Enter') sendMessage(); }
         function closeChatMobile() { document.getElementById('sidebar').classList.remove('hide'); document.getElementById('chatArea').classList.remove('show'); }
+        function endCall() { if(currentCall) currentCall.close(); if(localStream) localStream.getTracks().forEach(t=>t.stop()); document.getElementById('videoContainer').classList.remove('active'); }
 
         init();
     </script>
