@@ -56,6 +56,7 @@
             const authSubtitle = document.getElementById('authSubtitle');
             const logoBox = document.getElementById('logoBox');
             document.querySelectorAll('.message').forEach(m => m.style.display = 'none');
+            
             if (mode === 'register') {
                 loginForm.classList.remove('active');
                 registerForm.classList.add('active');
@@ -72,28 +73,63 @@
                 toggleContainer.innerHTML = 'Belum punya akun? <a onclick="switchMode(\'register\')">Daftar di sini</a>';
             }
         }
+
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnLogin');
             const msg = document.getElementById('loginMsg');
             btn.innerText = 'Memproses...'; btn.disabled = true;
+            msg.style.display = 'none';
+
             try {
-                const res = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: document.getElementById('loginUsername').value, password: document.getElementById('loginPassword').value }) });
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: document.getElementById('loginUsername').value,
+                        password: document.getElementById('loginPassword').value
+                    })
+                });
                 const data = await res.json();
-                if (data.success) window.location.href = '/dashboard';
-                else { msg.innerText = data.message; msg.className = 'message error'; btn.innerText = 'Masuk Dashboard'; btn.disabled = false; }
-            } catch (err) { msg.innerText = 'Koneksi server terputus.'; msg.className = 'message error'; btn.innerText = 'Masuk Dashboard'; btn.disabled = false; }
+                
+                if (data.success) {
+                    window.location.href = '/dashboard';
+                } else {
+                    msg.innerText = data.message;
+                    msg.className = 'message error';
+                    btn.innerText = 'Masuk Dashboard';
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                msg.innerText = 'Koneksi server terputus.';
+                msg.className = 'message error';
+                btn.innerText = 'Masuk Dashboard';
+                btn.disabled = false;
+            }
         });
+
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnRegister');
             const msg = document.getElementById('regMsg');
             btn.innerText = 'Mendaftar...'; btn.disabled = true;
+            msg.style.display = 'none';
+
             try {
-                const res = await fetch('/api/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ full_name: document.getElementById('regFullName').value, username: document.getElementById('regUsername').value, password: document.getElementById('regPassword').value }) });
+                const res = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        full_name: document.getElementById('regFullName').value,
+                        username: document.getElementById('regUsername').value,
+                        password: document.getElementById('regPassword').value
+                    })
+                });
                 const data = await res.json();
+                
                 if (data.success) {
-                    msg.innerText = '✅ ' + data.message; msg.className = 'message success';
+                    msg.innerText = '✅ ' + data.message;
+                    msg.className = 'message success';
                     setTimeout(() => {
                         switchMode('login');
                         document.getElementById('loginUsername').value = document.getElementById('regUsername').value;
@@ -101,9 +137,16 @@
                         document.getElementById('regUsername').value = '';
                         document.getElementById('regPassword').value = '';
                     }, 1500);
-                } else { msg.innerText = data.message; msg.className = 'message error'; }
-            } catch (err) { msg.innerText = 'Koneksi server terputus.'; msg.className = 'message error'; }
-            btn.innerText = 'Daftar Akun'; btn.disabled = false;
+                } else {
+                    msg.innerText = data.message;
+                    msg.className = 'message error';
+                }
+            } catch (err) {
+                msg.innerText = 'Koneksi server terputus.';
+                msg.className = 'message error';
+            }
+            btn.innerText = 'Daftar Akun'; 
+            btn.disabled = false;
         });
     </script>
 </body>
