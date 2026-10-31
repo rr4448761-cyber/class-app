@@ -18,8 +18,8 @@ const pool = new Pool({
     ssl: { rejectUnauthorized: false }
 });
 
-// --- KONFIGURASI VAPID ---
-const VAPID_PUBLIC_KEY = 'BClDzwzJRWCOz_wzmI9hOCFMYgYBOUc3nVCT2eiT8JXd1sHGuz5fkhID-I5qkRS-7LsVorS1PB_Ql-FieqmRr4';
+// --- VAPID KEY (BENER & PAS 65 KARAKTER) ---
+const VAPID_PUBLIC_KEY = 'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U';
 const VAPID_PRIVATE_KEY = 'UUxI4O8-FbRouAevSmBQ6o18hgL2G7mjG2g1gK2dX2I';
 webpush.setVapidDetails('mailto:admin@classxi5.com', VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
 
@@ -27,65 +27,29 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// --- SESSION STORE ---
 app.use(session({
-    store: new pgSession({ pool: pool, tableName: 'session' }),
+    store: new pgSession({ pool: pool, tableName: 'session', createTableIfMissing: true }),
     secret: 'super-secret-key-class-xi5',
     resave: false,
     saveUninitialized: false,
     cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 }
 }));
 
+// --- HEALTH CHECK (BUAT BACK4APP) ---
+app.get('/health', (req, res) => res.status(200).send('OK'));
+
 // --- FUNGSI INIT DATABASE ---
 async function initDB() {
     const client = await pool.connect();
     try {
         await client.query(`
-            CREATE TABLE IF NOT EXISTS users (
-                id SERIAL PRIMARY KEY,
-                username TEXT UNIQUE,
-                password TEXT,
-                role TEXT DEFAULT 'siswa',
-                full_name TEXT,
-                avatar_url TEXT
-            );
-            CREATE TABLE IF NOT EXISTS tasks (
-                id SERIAL PRIMARY KEY,
-                subject TEXT,
-                title TEXT,
-                description TEXT,
-                due_date TIMESTAMP,
-                created_by INTEGER,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-            CREATE TABLE IF NOT EXISTS messages (
-                id SERIAL PRIMARY KEY,
-                sender_id INTEGER,
-                receiver_id INTEGER,
-                message TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-            CREATE TABLE IF NOT EXISTS attendance (
-                id SERIAL PRIMARY KEY,
-                user_id INTEGER,
-                status TEXT,
-                date DATE DEFAULT CURRENT_DATE
-            );
-            CREATE TABLE IF NOT EXISTS subscriptions (
-                id SERIAL PRIMARY KEY,
-                user_id INTEGER,
-                endpoint TEXT UNIQUE,
-                p256dh TEXT,
-                auth TEXT
-            );
-            CREATE TABLE IF NOT EXISTS schedules (
-                id SERIAL PRIMARY KEY,
-                day TEXT NOT NULL,
-                start_time TEXT NOT NULL,
-                end_time TEXT NOT NULL,
-                subject TEXT NOT NULL,
-                teacher TEXT,
-                room TEXT
-            );
+            CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, username TEXT UNIQUE, password TEXT, role TEXT DEFAULT 'siswa', full_name TEXT, avatar_url TEXT);
+            CREATE TABLE IF NOT EXISTS tasks (id SERIAL PRIMARY KEY, subject TEXT, title TEXT, description TEXT, due_date TIMESTAMP, created_by INTEGER, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+            CREATE TABLE IF NOT EXISTS messages (id SERIAL PRIMARY KEY, sender_id INTEGER, receiver_id INTEGER, message TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+            CREATE TABLE IF NOT EXISTS attendance (id SERIAL PRIMARY KEY, user_id INTEGER, status TEXT, date DATE DEFAULT CURRENT_DATE);
+            CREATE TABLE IF NOT EXISTS subscriptions (id SERIAL PRIMARY KEY, user_id INTEGER, endpoint TEXT UNIQUE, p256dh TEXT, auth TEXT);
+            CREATE TABLE IF NOT EXISTS schedules (id SERIAL PRIMARY KEY, day TEXT NOT NULL, start_time TEXT NOT NULL, end_time TEXT NOT NULL, subject TEXT NOT NULL, teacher TEXT, room TEXT);
         `);
         const res = await client.query(`SELECT * FROM users WHERE username = 'admin'`);
         if (res.rows.length === 0) {
@@ -93,12 +57,14 @@ async function initDB() {
             await client.query(`INSERT INTO users (username, password, role, full_name, avatar_url) VALUES ('admin', $1, 'admin', 'ADMIN-REX', 'https://ui-avatars.com/api/?name=Admin+Rex&background=6c5ce7&color=fff')`, [hash]);
         }
         console.log('Database Supabase siap.');
+    } catch (err) {
+        console.error('Gagal init DB:', err);
     } finally {
         client.release();
     }
 }
 
-// --- MIDDLEWARE AUTH ---
+// --- AUTH MIDDLEWARE ---
 const requireAuth = (req, res, next) => { if (!req.session.userId) return res.status(401).json({ error: 'Unauthorized' }); next(); };
 const requireAdmin = (req, res, next) => { if (req.session.role !== 'admin') return res.status(403).json({ error: 'Forbidden' }); next(); };
 
@@ -215,7 +181,7 @@ io.on('connection', (socket) => {
     });
 });
 
-// --- HALAMAN ---
+// --- ROUTING HTML ---
 app.get('/', (req, res) => { if (req.session.userId) return res.redirect('/dashboard'); res.sendFile(path.join(__dirname, 'public', 'index.html')); });
 app.get('/dashboard', (req, res) => { if (!req.session.userId) return res.redirect('/'); res.sendFile(path.join(__dirname, 'public', 'dashboard.html')); });
 app.get('/chat', (req, res) => { if (!req.session.userId) return res.redirect('/'); res.sendFile(path.join(__dirname, 'public', 'chat.html')); });
