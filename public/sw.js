@@ -1,5 +1,5 @@
-const CACHE_NAME = 'class-app-v1';
-const ASSETS = ['/dashboard', '/chat', '/manifest.json'];
+const CACHE_NAME = 'class-app-v2';
+const ASSET = ['/chat', 'manifest.json'];
 
 self.addEventListener('install', (e) => {
     e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)));
