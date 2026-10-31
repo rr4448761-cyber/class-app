@@ -3,59 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <meta name="theme-color" content="#075e54">
+    <meta name="theme-color" content="#C5A059">
     <link rel="manifest" href="/manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <title>WhatsApp by Kyz</title>
+    <title>WhatsApp By Kyz</title>
     <style>
-        :root { --bg: #f4f5f9; --card: #fff; --text: #2d3436; --nav: rgba(255,255,255,0.95); --primary: #ecce25; --accent: #25d366; }
-        body.dark { --bg: #111b21; --card: #202c33; --text: #e9edef; --nav: rgba(32,44,51,0.95); --primary: #e7d321; }
+        :root { 
+            --gold: #C5A059; 
+            --gold-dark: #A8823D;
+            --bg-gold: #C5A059;
+            --card: #ffffff;
+            --text: #2d3436;
+            --text-light: #636e72;
+        }
         
         * { box-sizing: border-box; font-family: 'Inter', sans-serif; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; transition: background 0.3s, color 0.3s; }
-        body { background: var(--bg); color: var(--text); padding-bottom: 90px; }
+        body { background: var(--bg-gold); color: var(--text); padding-bottom: 90px; }
         
         .header { padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; }
         .header-left { display: flex; align-items: center; gap: 15px; }
-        .badge { background: var(--primary); color: white; padding: 10px 15px; border-radius: 50%; font-weight: 700; font-size: 18px; }
-        .header-text strong { font-size: 20px; color: var(--primary); }
+        .badge { background: #fff; color: var(--gold); padding: 12px 18px; border-radius: 50%; font-weight: 800; font-size: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .header-text strong { font-size: 22px; color: #ffffff; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         
-        .profile-card { background: var(--card); margin: 0 20px; border-radius: 16px; padding: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .avatar-wrap { width: 60px; height: 60px; border-radius: 50%; background: #dfe6e9; overflow: hidden; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+        .profile-card { background: var(--card); margin: 0 20px; border-radius: 16px; padding: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+        .avatar-wrap { width: 60px; height: 60px; border-radius: 50%; background: #f0f0f0; overflow: hidden; display: flex; justify-content: center; align-items: center; cursor: pointer; }
         .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
-        .avatar-wrap svg { width: 35px; height: 35px; fill: #888; }
-        .profile-info h4 { font-size: 13px; color: #888; }
+        .avatar-wrap svg { width: 35px; height: 35px; fill: #b2bec3; }
+        .profile-info h4 { font-size: 13px; color: var(--text-light); font-weight: 500; margin-bottom: 4px;}
         .profile-info h2 { font-size: 20px; font-weight: 700; color: var(--text); text-transform: uppercase; }
 
         /* Status Ala WA */
         .status-bar { margin: 20px; display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }
         .status-bar::-webkit-scrollbar { display: none; }
-        .status-item { text-align: center; width: 70px; flex-shrink: 0; cursor: pointer; }
-        .status-ring { width: 60px; height: 60px; border-radius: 50%; padding: 3px; background: var(--accent); margin: 0 auto 8px; }
-        .status-ring.mine { background: var(--primary); }
-        .status-ring img, .status-ring svg { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; background: var(--card); border: 2px solid var(--bg); }
-        .status-item p { font-size: 12px; color: var(--text); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .status-item { text-align: center; width: 75px; flex-shrink: 0; cursor: pointer; }
+        .status-ring { width: 65px; height: 65px; border-radius: 50%; padding: 3px; background: #ffffff; margin: 0 auto 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .status-ring.mine { background: var(--text-light); }
+        .status-ring img, .status-ring svg { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; background: var(--card); border: 3px solid var(--card); }
+        .status-item p { font-size: 12px; color: #ffffff; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
 
         .menu-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; padding: 15px 20px; margin-bottom: 20px; }
-        .menu-item { background: var(--card); padding: 15px 10px; border-radius: 16px; text-align: center; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
-        .menu-icon { width: 45px; height: 45px; margin: 0 auto 10px; border-radius: 50%; display: flex; justify-content: center; align-items: center; background: rgba(0,168,132,0.1); }
-        .menu-item p { font-size: 12px; font-weight: 600; color: var(--text); }
+        .menu-item { background: var(--card); padding: 15px 10px; border-radius: 16px; text-align: center; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+        .menu-icon { width: 45px; height: 45px; margin: 0 auto 10px; border-radius: 50%; display: flex; justify-content: center; align-items: center; background: #fdf5e6; }
+        .menu-item p { font-size: 12px; font-weight: 700; color: var(--text); }
 
-        .section-title { padding: 0 25px; margin-bottom: 15px; font-size: 16px; font-weight: 700; color: var(--text); }
-        .task-item { background: var(--card); margin: 0 20px 12px; padding: 15px; border-radius: 12px; position: relative; }
-        .btn-del-task { position: absolute; top: 15px; right: 15px; background: #ff4757; color: white; border: none; padding: 5px 10px; border-radius: 5px; font-size: 11px; cursor: pointer; }
+        .section-title { padding: 0 25px; margin-bottom: 15px; font-size: 16px; font-weight: 800; color: #ffffff; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .task-item { background: var(--card); margin: 0 20px 12px; padding: 15px; border-radius: 12px; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+        .btn-del-task { position: absolute; top: 15px; right: 15px; background: #ff4757; color: white; border: none; padding: 5px 10px; border-radius: 5px; font-size: 11px; cursor: pointer; font-weight: bold; }
 
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--nav); backdrop-filter: blur(10px); display: flex; justify-content: space-around; padding: 12px 0 20px; border-top-left-radius: 20px; border-top-right-radius: 20px; z-index: 100; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
-        .nav-item { text-align: center; color: #888; text-decoration: none; font-size: 11px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .nav-item.active { color: var(--primary); }
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--card); display: flex; justify-content: space-around; padding: 12px 0 20px; border-top-left-radius: 20px; border-top-right-radius: 20px; z-index: 100; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); }
+        .nav-item { text-align: center; color: #b2bec3; text-decoration: none; font-size: 11px; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .nav-item.active { color: var(--gold); }
         .nav-item svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 200; }
         .modal-content { background: var(--card); padding: 25px; border-radius: 20px; width: 90%; max-width: 450px; max-height: 85vh; overflow-y: auto; color: var(--text); }
-        .modal-content h3 { margin-bottom: 15px; color: var(--primary); }
-        .modal-content input, .modal-content select { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #444; border-radius: 10px; background: rgba(0,0,0,0.1); color: var(--text); }
-        .modal-content button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-bottom: 10px; }
+        .modal-content h3 { margin-bottom: 15px; color: var(--gold); }
+        .modal-content input, .modal-content select { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #dfe6e9; border-radius: 10px; background: #f8f9fa; color: var(--text); }
+        .modal-content button { width: 100%; padding: 12px; background: var(--gold); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-bottom: 10px; }
         
-        .user-item { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.05); padding: 12px; border-radius: 10px; margin-bottom: 10px; }
+        .user-item { display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 12px; border-radius: 10px; margin-bottom: 10px; }
         .btn-del { background: #ff4757; padding: 8px 12px; width: auto; color: white; border: none; border-radius: 5px; font-size: 12px; cursor: pointer; }
         
         #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 999; left: 50%; top: 30px; transform: translateX(-50%); opacity: 0; transition: opacity 0.3s, top 0.3s; }
@@ -68,7 +75,7 @@
     <div class="header">
         <div class="header-left">
             <div class="badge">XI</div>
-            <div class="header-text"><strong>WhatsApp Clone</strong></div>
+            <div class="header-text"><strong>WhatsApp By Kyz</strong></div>
         </div>
     </div>
     
@@ -81,19 +88,18 @@
         <div class="profile-info"><h4>Selamat Datang,</h4><h2 id="userName">LOADING...</h2></div>
     </div>
 
-    <!-- Status WA -->
     <div class="status-bar" id="statusList">
         <div class="status-item" onclick="window.location.href='/status'">
-            <div class="status-ring mine"><svg viewBox="0 0 24 24" style="padding:10px;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></div>
+            <div class="status-ring mine"><svg viewBox="0 0 24 24" style="padding:15px; fill:white;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></div>
             <p>Status Saya</p>
         </div>
     </div>
 
     <div class="menu-grid">
-        <a class="menu-item" onclick="openFeature('tugas')"><div class="menu-icon"><svg width="24" height="24" viewBox="0 0 24 24" stroke="#d35400" fill="none" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg></div><p>Tugas</p></a>
-        <a class="menu-item" onclick="openFeature('nilai')"><div class="menu-icon"><svg width="24" height="24" viewBox="0 0 24 24" stroke="#3498db" fill="none" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div><p>Nilai</p></a>
-        <a class="menu-item" onclick="openFeature('jadwal')"><div class="menu-icon"><svg width="24" height="24" viewBox="0 0 24 24" stroke="#e74c3c" fill="none" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div><p>Jadwal</p></a>
-        <a class="menu-item" onclick="openFeature('ujian')"><div class="menu-icon"><svg width="24" height="24" viewBox="0 0 24 24" stroke="#e67e22" fill="none" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></div><p>Ujian</p></a>
+        <a class="menu-item" onclick="openFeature('tugas')"><div class="menu-icon"><svg width="24" height="24" viewBox="0 0 24 24" stroke="#C5A059" fill="none" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg></div><p>Tugas</p></a>
+        <a class="menu-item" onclick="openFeature('nilai')"><div class="menu-icon"><svg width="24" height="24" viewBox="0 0 24 24" stroke="#C5A059" fill="none" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div><p>Nilai</p></a>
+        <a class="menu-item" onclick="openFeature('jadwal')"><div class="menu-icon"><svg width="24" height="24" viewBox="0 0 24 24" stroke="#C5A059" fill="none" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div><p>Jadwal</p></a>
+        <a class="menu-item" onclick="openFeature('ujian')"><div class="menu-icon"><svg width="24" height="24" viewBox="0 0 24 24" stroke="#C5A059" fill="none" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></div><p>Ujian</p></a>
     </div>
 
     <div class="section-title">Info & Tugas Terbaru</div>
@@ -101,15 +107,13 @@
 
     <div class="modal" id="featureModal"><div class="modal-content" id="modalContent"></div></div>
 
-    <!-- Bottom Nav (Termasuk Panel & Setelan) -->
     <div class="bottom-nav">
         <a href="/dashboard" class="nav-item active"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>Beranda</a>
         <a href="/chat" class="nav-item"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>Chat</a>
         <a href="/status" class="nav-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>Status</a>
         <a href="#" class="nav-item" onclick="openFeature('settings')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>Setelan</a>
-        <!-- Tombol Panel Admin (Hanya muncul jika admin) -->
-        <a href="#" class="nav-item" id="adminNavBtn" style="display:none; color:#ff4757;" onclick="openFeature('admin')"><svg viewBox="0 0 24 24" stroke="#ff4757"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>Panel</a>
-        <a href="#" class="nav-item" onclick="logout()"><svg viewBox="0 0 24 24" style="stroke:#e74c3c;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>Logout</a>
+        <a href="#" class="nav-item" id="adminNavBtn" style="display:none;" onclick="openFeature('admin')"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>Panel</a>
+        <a href="#" class="nav-item" onclick="logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>Logout</a>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
@@ -117,7 +121,6 @@
         let currentUser = null;
         const socket = io();
 
-        // Toast Notif
         function showToast(title, msg) {
             const toast = document.getElementById('toast');
             toast.innerHTML = `<b>${title}</b><br>${msg}`;
@@ -126,9 +129,6 @@
         socket.on('new_notif', (data) => { showToast(data.title, data.msg); });
 
         async function init() {
-            // Cek Tema Tersimpan
-            if(localStorage.getItem('theme') === 'dark') document.body.classList.add('dark');
-
             try { 
                 const res = await fetch('/api/me'); 
                 if (!res.ok) throw new Error(); 
@@ -137,7 +137,6 @@
                 if (currentUser.avatar) {
                     document.getElementById('userAvatar').src = currentUser.avatar; document.getElementById('userAvatar').style.display = 'block'; document.getElementById('defaultAvatar').style.display = 'none';
                 }
-                // Tampilkan tombol Panel Admin jika role admin
                 if (currentUser.role === 'admin') document.getElementById('adminNavBtn').style.display = 'flex';
             } catch (e) { window.location.href = '/'; return; }
             
@@ -148,7 +147,7 @@
         async function loadStatuses() {
             const res = await fetch('/api/stories'); const stories = await res.json();
             const others = stories.filter(s => s.user_id !== currentUser.id);
-            let html = `<div class="status-item" onclick="window.location.href='/status'"><div class="status-ring mine"><svg viewBox="0 0 24 24" style="padding:10px;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></div><p>Status Saya</p></div>`;
+            let html = `<div class="status-item" onclick="window.location.href='/status'"><div class="status-ring mine"><svg viewBox="0 0 24 24" style="padding:15px; fill:white;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></div><p>Status Saya</p></div>`;
             
             others.forEach(s => {
                 let img = s.avatar_url ? `<img src="${s.avatar_url}">` : `<svg viewBox="0 0 24 24" style="padding:10px;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z"/></svg>`;
@@ -171,7 +170,7 @@
             const res = await fetch('/api/tasks'); const tasks = await res.json();
             document.getElementById('taskListContainer').innerHTML = tasks.map(t => `
                 <div class="task-item">
-                    <h4 style="color:var(--primary); font-size:14px;">${t.subject}</h4>
+                    <h4 style="color:var(--gold); font-size:14px;">${t.subject}</h4>
                     <p style="font-size:14px; font-weight:600; margin:5px 0;">${t.title}</p>
                     <small style="color:#e74c3c;">Tenggat: ${new Date(t.due_date).toLocaleString()}</small>
                     ${currentUser.role === 'admin' ? `<button class="btn-del-task" onclick="delTask(${t.id})">Hapus</button>` : ''}
@@ -192,8 +191,7 @@
 
             try {
                 if (feature === 'settings') {
-                    html += `<p>Ganti Tema Aplikasi:</p><br>
-                             <button onclick="toggleTheme()" style="background: #333;">Ganti Mode (Terang / Gelap)</button>
+                    html += `<p>Pengaturan Aplikasi</p><br>
                              <button onclick="document.getElementById('featureModal').style.display='none'" style="background:#888;">Tutup</button>`;
                 }
                 else if (feature === 'admin') {
@@ -213,11 +211,6 @@
                 else if (feature === 'ujian') { html += `<p>Fitur ujian siap diisi.</p><button onclick="document.getElementById('featureModal').style.display='none'" style="background:#888;">Tutup</button>`; }
             } catch (e) { html += `<p style="color:red">Gagal memuat.</p>`; }
             content.innerHTML = html;
-        }
-
-        function toggleTheme() {
-            document.body.classList.toggle('dark');
-            localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
         }
 
         async function submitData(e, endpoint) {
