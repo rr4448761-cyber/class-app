@@ -21,8 +21,9 @@ const VAPID_PUBLIC_KEY = 'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSg
 const VAPID_PRIVATE_KEY = 'UUxI4O8-FbRouAevSmBQ6o18hgL2G7mjG2g1gK2dX2I';
 webpush.setVapidDetails('mailto:admin@classxi5.com', VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
 
-app.use(express.json({ limit: '20mb' }));
-app.use(express.urlencoded({ extended: true, limit: '20mb' }));
+// Limit upload naik jadi 50MB buat video status
+app.use(express.json({ limit: '50mb' })); 
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(session({
@@ -38,29 +39,23 @@ app.get('/health', (req, res) => res.status(200).send('OK'));
 async function initDB() {
     const client = await pool.connect();
     try {
-        // BIKIN SEMUA TABEL DARI NOL
         await client.query(`
             CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, username TEXT UNIQUE, password TEXT, plain_password TEXT, role TEXT DEFAULT 'siswa', full_name TEXT, avatar_url TEXT);
-            CREATE TABLE IF NOT EXISTS tasks (id SERIAL PRIMARY KEY, subject TEXT, title TEXT, description TEXT, due_date TIMESTAMP, created_by INTEGER, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
-            CREATE TABLE IF NOT EXISTS messages (id SERIAL PRIMARY KEY, sender_id INTEGER, receiver_id INTEGER, message TEXT, media TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
-            CREATE TABLE IF NOT EXISTS attendance (id SERIAL PRIMARY KEY, user_id INTEGER, status TEXT, date DATE DEFAULT CURRENT_DATE);
-            CREATE TABLE IF NOT EXISTS schedules (id SERIAL PRIMARY KEY, day TEXT, start_time TEXT, end_time TEXT, subject TEXT, teacher TEXT, room TEXT);
-            CREATE TABLE IF NOT EXISTS grades (id SERIAL PRIMARY KEY, user_id INTEGER, subject TEXT, score INTEGER, type TEXT);
-            CREATE TABLE IF NOT EXISTS exams (id SERIAL PRIMARY KEY, subject TEXT, title TEXT, exam_date TIMESTAMP);
-            CREATE TABLE IF NOT EXISTS library (id SERIAL PRIMARY KEY, title TEXT, subject TEXT, link TEXT);
-            CREATE TABLE IF NOT EXISTS finance (id SERIAL PRIMARY KEY, user_id INTEGER, amount INTEGER, status TEXT, description TEXT);
-            CREATE TABLE IF NOT EXISTS stories (id SERIAL PRIMARY KEY, user_id INTEGER, media TEXT, text TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+            CREATE TABLE IF NOT EXISTS tasks (id SERIAL PRIMARY KEY, subject TEXT, title TEXT, description TEXT, due_date TIMESTAMP, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+            CREATE TABLE IF NOT EXISTS messages (id SERIAL PRIMARY KEY, sender_id INTEGER, receiver_id INTEGER, message TEXT, media TEXT, media_type TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+            CREATE TABLE IF NOT EXISTS stories (id SERIAL PRIMARY KEY, user_id INTEGER, media TEXT, media_type TEXT, text TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
         `);
         
-        // Bersihin tabel lama yang mungkin bikin error kolom
-        try { await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS plain_password TEXT;`); } catch(e){}
+        // Migrasi tabel lama biar aman
+        try { await client.query(`ALTER TABLE messages ADD COLUMN IF NOT EXISTS media_type TEXT;`); } catch(e){}
+        try { await client.query(`ALTER TABLE stories ADD COLUMN IF NOT EXISTS media_type TEXT;`); } catch(e){}
 
-        const res = await client.query(`SELECT * FROM users WHERE username = 'ikyaja'`);
+        const res = await client.query(`SELECT * FROM users WHERE username = 'admin'`);
         if (res.rows.length === 0) {
-            const hash = bcrypt.hashSync('ikyy2010', 10);
+            const hash = bcrypt.hashSync('admin123', 10);
             await client.query(`INSERT INTO users (username, password, plain_password, role, full_name, avatar_url) VALUES ('admin', $1, 'admin123', 'admin', 'ADMIN-REX', NULL)`, [hash]);
         }
-        console.log('Semua Tabel Database Supabase Siap.');
+        console.log('Database Siap (WA Clone Mode).');
     } catch (err) { console.error('Gagal init DB:', err); } finally { client.release(); }
 }
 
@@ -101,76 +96,27 @@ app.post('/api/profile/avatar', requireAuth, async (req, res) => {
     res.json({ success: true });
 });
 
-// --- ADMIN PANEL API ---
+// --- ADMIN PANEL ---
 app.get('/api/admin/users', requireAuth, requireAdmin, async (req, res) => {
     const result = await pool.query(`SELECT id, username, plain_password, full_name, role FROM users ORDER BY id ASC`);
     res.json(result.rows);
 });
-
 app.delete('/api/admin/users/:id', requireAuth, requireAdmin, async (req, res) => {
-    const targetId = req.params.id;
-    if (targetId == req.session.userId) return res.status(400).json({error: 'Tidak bisa hapus diri sendiri'});
-    await pool.query(`DELETE FROM users WHERE id = $1`, [targetId]);
+    if (req.params.id == req.session.userId) return res.status(400).json({error: 'Tidak bisa hapus diri sendiri'});
+    await pool.query(`DELETE FROM users WHERE id = $1`, [req.params.id]);
     res.json({ success: true });
 });
 
-// --- 8 FITUR UTAMA (BROADCAST & GET) ---
+// --- FITUR TUGAS & HAPUS TUGAS ---
 app.get('/api/tasks', requireAuth, async (req, res) => { const r = await pool.query(`SELECT * FROM tasks ORDER BY created_at DESC`); res.json(r.rows); });
 app.post('/api/tasks', requireAuth, requireAdmin, async (req, res) => {
-    const { subject, title, description, due_date } = req.body;
-    await pool.query(`INSERT INTO tasks (subject, title, description, due_date) VALUES ($1, $2, $3, $4)`, [subject, title, description, due_date]);
+    const { subject, title, due_date } = req.body;
+    await pool.query(`INSERT INTO tasks (subject, title, due_date) VALUES ($1, $2, $3)`, [subject, title, due_date]);
     io.emit('new_notif', { title: 'Tugas Baru!', msg: `Mapel ${subject}: ${title}` });
     res.json({ success: true });
 });
-
-app.get('/api/schedules', requireAuth, async (req, res) => { const r = await pool.query(`SELECT * FROM schedules ORDER BY day ASC`); res.json(r.rows); });
-app.post('/api/schedules', requireAuth, requireAdmin, async (req, res) => {
-    const { day, start_time, end_time, subject, teacher, room } = req.body;
-    await pool.query(`INSERT INTO schedules (day, start_time, end_time, subject, teacher, room) VALUES ($1, $2, $3, $4, $5, $6)`, [day, start_time, end_time, subject, teacher, room]);
-    io.emit('new_notif', { title: 'Jadwal Baru!', msg: `Hari ${day}: ${subject}` });
-    res.json({ success: true });
-});
-
-app.get('/api/exams', requireAuth, async (req, res) => { const r = await pool.query(`SELECT * FROM exams ORDER BY exam_date ASC`); res.json(r.rows); });
-app.post('/api/exams', requireAuth, requireAdmin, async (req, res) => {
-    const { subject, title, exam_date } = req.body;
-    await pool.query(`INSERT INTO exams (subject, title, exam_date) VALUES ($1, $2, $3)`, [subject, title, exam_date]);
-    io.emit('new_notif', { title: 'Info Ujian!', msg: `${subject}: ${title}` });
-    res.json({ success: true });
-});
-
-app.get('/api/grades', requireAuth, async (req, res) => { 
-    const q = req.session.role === 'admin' ? `SELECT g.*, u.full_name FROM grades g JOIN users u ON g.user_id = u.id` : `SELECT * FROM grades WHERE user_id = $1`;
-    const r = await pool.query(q, req.session.role === 'admin' ? [] : [req.session.userId]); res.json(r.rows); 
-});
-app.post('/api/grades', requireAuth, requireAdmin, async (req, res) => {
-    const { user_id, subject, score, type } = req.body;
-    await pool.query(`INSERT INTO grades (user_id, subject, score, type) VALUES ($1, $2, $3, $4)`, [user_id, subject, score, type]);
-    io.emit('new_notif', { title: 'Nilai Keluar!', msg: `Nilai ${subject} telah diinput.` });
-    res.json({ success: true });
-});
-
-app.get('/api/attendance', requireAuth, async (req, res) => { const r = await pool.query(`SELECT * FROM attendance WHERE user_id = $1 ORDER BY date DESC`, [req.session.userId]); res.json(r.rows); });
-app.post('/api/attendance', requireAuth, requireAdmin, async (req, res) => {
-    const { user_id, status } = req.body;
-    await pool.query(`INSERT INTO attendance (user_id, status) VALUES ($1, $2)`, [user_id, status]);
-    io.emit('new_notif', { title: 'Absensi Diupdate', msg: `Status kehadiran diperbarui.` });
-    res.json({ success: true });
-});
-
-app.get('/api/library', requireAuth, async (req, res) => { const r = await pool.query(`SELECT * FROM library`); res.json(r.rows); });
-app.post('/api/library', requireAuth, requireAdmin, async (req, res) => {
-    const { title, subject, link } = req.body;
-    await pool.query(`INSERT INTO library (title, subject, link) VALUES ($1, $2, $3)`, [title, subject, link]);
-    io.emit('new_notif', { title: 'Materi Baru!', msg: `${title} (${subject})` });
-    res.json({ success: true });
-});
-
-app.get('/api/finance', requireAuth, async (req, res) => { const r = await pool.query(`SELECT * FROM finance WHERE user_id = $1`, [req.session.userId]); res.json(r.rows); });
-app.post('/api/finance', requireAuth, requireAdmin, async (req, res) => {
-    const { user_id, amount, status, description } = req.body;
-    await pool.query(`INSERT INTO finance (user_id, amount, status, description) VALUES ($1, $2, $3, $4)`, [user_id, amount, status, description]);
-    io.emit('new_notif', { title: 'Info Kas', msg: `Tagihan: ${description}` });
+app.delete('/api/tasks/:id', requireAuth, requireAdmin, async (req, res) => {
+    await pool.query(`DELETE FROM tasks WHERE id = $1`, [req.params.id]);
     res.json({ success: true });
 });
 
@@ -187,27 +133,34 @@ app.get('/api/messages/:receiverId', requireAuth, async (req, res) => {
     res.json(result.rows);
 });
 
-// --- STATUS API ---
+// --- STATUS API (STORY) ---
 app.get('/api/stories', requireAuth, async (req, res) => {
     const r = await pool.query(`SELECT s.*, u.full_name, u.avatar_url FROM stories s JOIN users u ON s.user_id = u.id WHERE s.created_at >= NOW() - INTERVAL '24 HOURS' ORDER BY s.created_at DESC`);
     res.json(r.rows);
 });
 app.post('/api/stories', requireAuth, async (req, res) => {
-    await pool.query(`INSERT INTO stories (user_id, media, text) VALUES ($1, $2, $3)`, [req.session.userId, req.body.media, req.body.text]);
+    const { media, media_type, text } = req.body;
+    await pool.query(`INSERT INTO stories (user_id, media, media_type, text) VALUES ($1, $2, $3, $4)`, [req.session.userId, media, media_type, text]);
     res.json({ success: true });
 });
 
-// --- SOCKET IO ---
+// --- SOCKET IO (REAL-TIME CHAT & CALLS) ---
 io.on('connection', (socket) => {
     socket.on('join_chat', (data) => { if (data.room === 'group') socket.join('group_chat'); else socket.join(`user_${data.userId}`); });
+    
     socket.on('send_message', async (data) => {
-        const { sender_id, receiver_id, message, media, sender_name } = data;
+        const { sender_id, receiver_id, message, media, media_type, sender_name } = data;
         const dbReceiverId = (receiver_id === 'group') ? null : receiver_id;
-        const result = await pool.query(`INSERT INTO messages (sender_id, receiver_id, message, media) VALUES ($1, $2, $3, $4) RETURNING id, created_at`, [sender_id, dbReceiverId, message, media]);
-        const msgData = { id: result.rows[0].id, sender_id, receiver_id: dbReceiverId, message, media, full_name: sender_name, created_at: result.rows[0].created_at };
-        if (dbReceiverId === null) io.to('group_chat').emit('receive_message', msgData);
-        else { io.to(`user_${receiver_id}`).emit('receive_message', msgData); socket.emit('receive_message', msgData); }
+        
+        try {
+            const result = await pool.query(`INSERT INTO messages (sender_id, receiver_id, message, media, media_type) VALUES ($1, $2, $3, $4, $5) RETURNING id, created_at`, [sender_id, dbReceiverId, message, media, media_type]);
+            const msgData = { id: result.rows[0].id, sender_id, receiver_id: dbReceiverId, message, media, media_type, full_name: sender_name, created_at: result.rows[0].created_at };
+            
+            if (dbReceiverId === null) io.to('group_chat').emit('receive_message', msgData);
+            else { io.to(`user_${receiver_id}`).emit('receive_message', msgData); socket.emit('receive_message', msgData); }
+        } catch(e) { console.log(e); }
     });
+
     socket.on('callUser', (data) => { io.to(`user_${data.userToCall}`).emit('callUser', data); });
     socket.on('answerCall', (data) => { io.to(`user_${data.to}`).emit('callAccepted', data.signal); });
     socket.on('endCall', (data) => { io.to(`user_${data.to}`).emit('endCall'); });
