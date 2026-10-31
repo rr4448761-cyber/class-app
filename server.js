@@ -55,9 +55,9 @@ async function initDB() {
         // Bersihin tabel lama yang mungkin bikin error kolom
         try { await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS plain_password TEXT;`); } catch(e){}
 
-        const res = await client.query(`SELECT * FROM users WHERE username = 'admin'`);
+        const res = await client.query(`SELECT * FROM users WHERE username = 'ikyaja'`);
         if (res.rows.length === 0) {
-            const hash = bcrypt.hashSync('admin123', 10);
+            const hash = bcrypt.hashSync('ikyy2010', 10);
             await client.query(`INSERT INTO users (username, password, plain_password, role, full_name, avatar_url) VALUES ('admin', $1, 'admin123', 'admin', 'ADMIN-REX', NULL)`, [hash]);
         }
         console.log('Semua Tabel Database Supabase Siap.');
