@@ -6,57 +6,86 @@
     <title>Chat - WhatsApp by Kyz</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
-        :root { --gold: #C5A059; --bg: #efeae2; --header: #C5A059; --recv: #fff; --sent: #fdf5e6; --text: #000; }
-        * { box-sizing: border-box; font-family: 'Segoe UI', Helvetica, Arial, sans-serif; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        body { display: flex; height: 100dvh; width: 100vw; overflow: hidden; background: var(--bg); }
+        :root { 
+            --gold: #C5A059; --gold-dark: #A8823D;
+            --bg: #efeae2; --header: #C5A059; --recv: #ffffff; --sent: #fdf5e6; --text: #000;
+            --sidebar-bg: #fff;
+        }
+        body.dark { 
+            --bg: #0b141a; --header: #202c33; --recv: #202c33; --sent: #005c4b; --text: #e9edef;
+            --sidebar-bg: #111b21;
+        }
         
-        .sidebar { width: 35%; min-width: 320px; background: #fff; display: flex; flex-direction: column; border-right: 1px solid #ddd; }
-        .sidebar-header { padding: 15px 20px; background: var(--header); color: white; font-weight: 600; font-size: 18px; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Helvetica, Arial, sans-serif; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { display: flex; height: 100dvh; width: 100vw; overflow: hidden; background: var(--bg); color: var(--text); transition: background 0.3s, color 0.3s; }
+        
+        /* Sidebar */
+        .sidebar { width: 35%; min-width: 320px; background: var(--sidebar-bg); display: flex; flex-direction: column; border-right: 1px solid rgba(0,0,0,0.1); transition: background 0.3s; }
+        .sidebar-header { padding: 15px 20px; background: var(--header); color: white; display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 18px; }
+        .sidebar-header svg { width: 24px; height: 24px; fill: white; cursor: pointer; }
+        .search-chat { padding: 10px 15px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .search-chat input { width: 100%; padding: 10px 15px; border-radius: 20px; border: none; background: var(--bg); color: var(--text); outline: none; }
         .contact-list { flex: 1; overflow-y: auto; }
-        .contact { padding: 12px 20px; display: flex; align-items: center; gap: 15px; cursor: pointer; border-bottom: 1px solid #f0f0f0; }
-        .contact:hover, .contact.active { background: #f9f9f9; }
-        .avatar-circle { width: 48px; height: 48px; border-radius: 50%; background: #ccc; display: flex; justify-content: center; align-items: center; overflow: hidden; flex-shrink: 0;}
+        .contact { padding: 12px 20px; display: flex; align-items: center; gap: 15px; cursor: pointer; border-bottom: 1px solid rgba(0,0,0,0.05); transition: background 0.2s; }
+        .contact:hover, .contact.active { background: rgba(0,0,0,0.05); }
+        .avatar-circle { width: 50px; height: 50px; border-radius: 50%; background: #ccc; display: flex; justify-content: center; align-items: center; overflow: hidden; flex-shrink: 0; position: relative;}
         .avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
         .avatar-circle svg { width: 30px; height: 30px; fill: #888; }
+        .online-dot { position: absolute; bottom: 2px; right: 2px; width: 12px; height: 12px; background: #25d366; border-radius: 50%; border: 2px solid var(--sidebar-bg); }
         
-        .chat-area { flex: 1; display: flex; flex-direction: column; background: var(--bg); position: relative; }
+        /* Chat Area */
+        .chat-area { flex: 1; display: flex; flex-direction: column; position: relative; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-size: cover; background-blend-mode: overlay; transition: background 0.3s; }
         .chat-header { padding: 10px 20px; background: var(--header); color: white; display: flex; align-items: center; gap: 15px; z-index: 10; }
-        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-size: cover; background-blend-mode: overlay; }
+        .chat-header-info h3 { font-size: 16px; font-weight: 600; }
+        .chat-header-info p { font-size: 12px; opacity: 0.8; color: #e0e0e0;}
         
-        .message { max-width: 75%; padding: 8px 12px; border-radius: 8px; font-size: 14.5px; position: relative; box-shadow: 0 1px 1px rgba(0,0,0,0.1); color: var(--text); word-wrap: break-word; display: flex; flex-direction: column; }
+        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+        
+        .message { max-width: 75%; padding: 8px 12px; border-radius: 8px; font-size: 14.5px; position: relative; box-shadow: 0 1px 1px rgba(0,0,0,0.1); word-wrap: break-word; display: flex; flex-direction: column; transition: transform 0.2s; }
         .message.received { background: var(--recv); align-self: flex-start; border-top-left-radius: 0; }
         .message.sent { background: var(--sent); align-self: flex-end; border-top-right-radius: 0; }
         
-        /* Fitur Reply */
+        /* Reply Box */
         .reply-box { background: rgba(0,0,0,0.05); border-left: 3px solid var(--gold); padding: 5px 10px; margin-bottom: 5px; border-radius: 4px; font-size: 12px; color: #555; }
         .reply-box b { color: var(--gold); display: block; margin-bottom: 2px;}
         
+        /* Media */
         .message img, .message video { max-width: 100%; border-radius: 6px; margin-top: 5px; display: block; }
-        .message audio { max-width: 100%; margin-top: 5px; outline: none; }
+        .message audio { max-width: 100%; margin-top: 5px; outline: none; filter: sepia(100%) hue-rotate(5deg) saturate(300%); }
         
-        /* Centang Biru/Emas */
+        /* Reactions */
+        .reaction-badge { position: absolute; bottom: -12px; right: 10px; background: #fff; border-radius: 10px; padding: 2px 6px; font-size: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); display: flex; gap: 2px; }
+        
         .message .time { font-size: 11px; color: #888; float: right; margin: 5px 0 0 10px; display: flex; align-items: center; gap: 3px; }
         .tick { width: 16px; height: 16px; fill: #888; }
-        .tick.read { fill: var(--gold); } /* Centang Emas jika dibaca */
+        .tick.read { fill: var(--gold); }
 
-        .chat-input { padding: 10px; background: var(--header); display: flex; gap: 8px; align-items: center; padding-bottom: max(10px, env(safe-area-inset-bottom)); }
-        .chat-input input[type="text"] { flex: 1; padding: 12px 15px; border-radius: 20px; border: none; outline: none; font-size: 15px; }
+        /* Input Area */
+        .chat-input-container { padding: 10px; background: var(--header); }
+        .reply-overlay { display: none; background: var(--sidebar-bg); padding: 10px 15px; border-left: 4px solid var(--gold); margin-bottom: 5px; border-radius: 5px; font-size: 13px; position: relative; color: var(--text);}
+        .reply-overlay b { color: var(--gold); display: block; margin-bottom: 3px; font-size: 12px;}
+        .reply-overlay button { position: absolute; right: 10px; top: 10px; background: none; border: none; font-size: 18px; cursor: pointer; color: #888;}
+        
+        .chat-input { display: flex; gap: 8px; align-items: center; }
+        .chat-input input[type="text"] { flex: 1; padding: 12px 15px; border-radius: 20px; border: none; outline: none; font-size: 15px; background: #fff;}
         .btn-icon { background: transparent; border: none; cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center;}
         .btn-icon svg { width: 24px; height: 24px; fill: white; }
         .btn-send { background: var(--gold); border-radius: 50%; width: 45px; height: 45px; display: flex; justify-content: center; align-items: center; border: none; cursor: pointer; flex-shrink: 0; }
         .btn-send svg { width: 22px; height: 22px; fill: white; margin-left: -2px; }
 
-        /* Reply Overlay di Input */
-        .reply-overlay { display: none; background: #fff; padding: 10px 15px; border-left: 4px solid var(--gold); margin: 0 10px 5px; border-radius: 5px; font-size: 13px; position: relative;}
-        .reply-overlay b { color: var(--gold); display: block; margin-bottom: 3px; font-size: 12px;}
-        .reply-overlay button { position: absolute; right: 10px; top: 10px; background: none; border: none; font-size: 18px; cursor: pointer; color: #888;}
-
-        /* Konteks Menu (Long Press) */
-        .context-menu { display: none; position: fixed; background: #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.2); border-radius: 8px; z-index: 300; overflow: hidden; min-width: 120px; }
-        .context-menu button { width: 100%; padding: 12px 20px; text-align: left; background: none; border: none; font-size: 14px; cursor: pointer; border-bottom: 1px solid #eee;}
-        .context-menu button:hover { background: #f5f5f5; }
+        /* Context Menu & Emoji Picker */
+        .context-menu { display: none; position: fixed; background: var(--sidebar-bg); box-shadow: 0 5px 15px rgba(0,0,0,0.2); border-radius: 8px; z-index: 300; overflow: hidden; min-width: 150px; color: var(--text); }
+        .context-menu button { width: 100%; padding: 12px 20px; text-align: left; background: none; border: none; font-size: 14px; cursor: pointer; border-bottom: 1px solid rgba(0,0,0,0.05); color: inherit;}
+        .context-menu button:hover { background: rgba(0,0,0,0.05); }
         .context-menu button.del { color: #ff4757; }
+        
+        .emoji-bar { display: none; position: absolute; bottom: 100%; right: 10px; background: var(--sidebar-bg); border-radius: 20px; padding: 5px 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 250; gap: 5px;}
+        .emoji-bar span { cursor: pointer; font-size: 20px; transition: transform 0.1s; }
+        .emoji-bar span:hover { transform: scale(1.3); }
 
+        /* Typing Indicator */
+        .typing-indicator { position: absolute; bottom: 5px; left: 20px; background: var(--recv); padding: 8px 15px; border-radius: 15px; font-size: 12px; color: #888; font-style: italic; display: none; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        
         /* Video Call UI */
         .video-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1000; flex-direction: column; }
         .video-container.active { display: flex; }
@@ -69,6 +98,10 @@
         .back-btn { display: none; background: transparent; border: none; color: white; }
         .back-btn svg { width: 24px; height: 24px; fill: white; }
         
+        /* Settings Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 500; justify-content: center; align-items: center; }
+        .modal-content { background: var(--sidebar-bg); padding: 25px; border-radius: 16px; width: 90%; max-width: 400px; color: var(--text); }
+        
         @media (max-width: 768px) {
             .sidebar { width: 100%; border-right: none; }
             .sidebar.hide { display: none; }
@@ -79,48 +112,78 @@
     </style>
 </head>
 <body>
-    <!-- Sidebar Kontak -->
+    <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">WhatsApp by Kyz</div>
-        <div class="contact-list" id="contactList"></div>
+        <div class="sidebar-header">
+            <span>WhatsApp by Kyz</span>
+            <svg onclick="document.getElementById('settingsModal').style.display='flex'" viewBox="0 0 24 24"><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </div>
+        <div class="search-chat"><input type="text" placeholder="Cari atau mulai chat baru..." onkeyup="filterContacts(this.value)"></div>
+        <div class="contact-list" id="contactList">
+            <!-- Diisi JS -->
+        </div>
     </div>
 
-    <!-- Area Chat -->
+    <!-- Chat Area -->
     <div class="chat-area" id="chatArea">
         <div class="chat-header">
             <button class="back-btn" onclick="closeChatMobile()"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></button>
             <div class="avatar-circle" id="chatHeaderAvatar"></div>
-            <div style="flex:1;">
-                <h3 id="chatHeaderName" style="font-size:16px;">Grup Kelas</h3>
-                <p id="chatHeaderStatus" style="font-size:12px; opacity:0.8;">Online</p>
+            <div class="chat-header-info" style="flex:1;">
+                <h3 id="chatHeaderName">Grup Kelas</h3>
+                <p id="chatHeaderStatus">Online</p>
             </div>
+            <button class="btn-icon" onclick="startCall(false)"><svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg></button>
+            <button class="btn-icon" onclick="startCall(true)"><svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg></button>
         </div>
         
         <div class="chat-messages" id="chatMessages"></div>
+        <div class="typing-indicator" id="typingIndicator">Sedang mengetik...</div>
         
-        <!-- Kotak Reply -->
-        <div class="reply-overlay" id="replyOverlay">
-            <b id="replyName">Membalas...</b>
-            <span id="replyText" style="color:#666; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></span>
-            <button onclick="cancelReply()">×</button>
-        </div>
-
-        <div class="chat-input">
-            <input type="file" id="mediaInput" accept="image/*,video/*" style="display:none" onchange="sendMedia(event)">
-            <button class="btn-icon" onclick="document.getElementById('mediaInput').click()"><svg viewBox="0 0 24 24"><path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5a2.5 2.5 0 0 1 5 0v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5a2.5 2.5 0 0 0 5 0V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"/></svg></button>
-            <button class="btn-icon" id="micBtn" onclick="toggleRecording()"><svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg></button>
-            <input type="text" id="msgInput" placeholder="Ketik pesan..." onkeypress="handleEnter(event)">
-            <button class="btn-send" onclick="sendMessage()"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+        <div class="chat-input-container">
+            <div class="reply-overlay" id="replyOverlay">
+                <b id="replyName">Membalas...</b>
+                <span id="replyText" style="color:#666; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></span>
+                <button onclick="cancelReply()">×</button>
+            </div>
+            <div class="chat-input">
+                <input type="file" id="mediaInput" accept="image/*,video/*" style="display:none" onchange="sendMedia(event)">
+                <button class="btn-icon" onclick="document.getElementById('mediaInput').click()"><svg viewBox="0 0 24 24"><path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5a2.5 2.5 0 0 1 5 0v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5a2.5 2.5 0 0 0 5 0V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"/></svg></button>
+                <button class="btn-icon" id="micBtn" onclick="toggleRecording()"><svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg></button>
+                <input type="text" id="msgInput" placeholder="Ketik pesan..." oninput="handleTyping()" onkeypress="handleEnter(event)">
+                <button class="btn-send" onclick="sendMessage()"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+            </div>
         </div>
     </div>
 
-    <!-- Konteks Menu (Reply/Hapus) -->
+    <!-- Modals & Overlays -->
+    <div class="emoji-bar" id="emojiBar">
+        <span onclick="sendReaction('👍')">👍</span>
+        <span onclick="sendReaction('❤️')">❤️</span>
+        <span onclick="sendReaction('😂')">😂</span>
+        <span onclick="sendReaction('😮')">😮</span>
+        <span onclick="sendReaction('😢')">😢</span>
+        <span onclick="sendReaction('🙏')">🙏</span>
+    </div>
+
     <div class="context-menu" id="contextMenu">
         <button onclick="replyToMessage()">Balas Pesan</button>
+        <button onclick="showEmojiBar()">Beri Reaksi</button>
         <button class="del" id="deleteBtn" onclick="deleteMessage()">Hapus Pesan</button>
     </div>
 
-    <!-- Video Call UI -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <h3 style="margin-bottom:15px; color:var(--gold);">Pengaturan Chat</h3>
+            <p style="margin-bottom:10px;">Tema Aplikasi:</p>
+            <button onclick="toggleTheme()" style="width:100%; padding:12px; margin-bottom:15px; border:none; border-radius:8px; background:var(--gold); color:white; font-weight:bold; cursor:pointer;">Ganti Mode Terang/Gelap</button>
+            <p style="margin-bottom:10px;">Wallpaper Chat:</p>
+            <input type="text" id="wallpaperUrl" placeholder="Paste Link Gambar..." style="width:100%; padding:12px; margin-bottom:10px; border-radius:8px; border:1px solid #ccc; background:var(--bg); color:var(--text);">
+            <button onclick="setWallpaper()" style="width:100%; padding:12px; margin-bottom:15px; border:none; border-radius:8px; background:#333; color:white; font-weight:bold; cursor:pointer;">Terapkan Wallpaper</button>
+            <button onclick="document.getElementById('settingsModal').style.display='none'" style="width:100%; padding:12px; border:none; border-radius:8px; background:#888; color:white; font-weight:bold; cursor:pointer;">Tutup</button>
+        </div>
+    </div>
+
     <div class="video-container" id="videoContainer">
         <video class="remote-video" id="remoteVideo" autoplay playsinline></video>
         <video class="local-video" id="localVideo" autoplay muted playsinline></video>
@@ -135,14 +198,16 @@
         let replyTarget = null; let selectedMessageId = null;
         const socket = io();
         let peer = null; let localStream = null; let currentCall = null;
+        let typingTimeout = null; let isTyping = false;
 
-        // Avatar Default
         function getAvatar(url) { return url ? `<img src="${url}">` : `<svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`; }
 
         async function init() {
+            if(localStorage.getItem('theme') === 'dark') document.body.classList.add('dark');
+            if(localStorage.getItem('wallpaper')) document.getElementById('chatMessages').style.backgroundImage = `url('${localStorage.getItem('wallpaper')}')`;
+
             try { const res = await fetch('/api/me'); if(!res.ok) throw new Error(); currentUser = await res.json(); } catch(e) { window.location.href = '/'; return; }
             
-            // Sinyal Online
             socket.emit('user_online', currentUser.id);
 
             peer = new Peer(`class-xi5-user-${currentUser.id}`, { config: { 'iceServers': [{ urls: 'stun:stun.l.google.com:19302' }] } });
@@ -156,61 +221,84 @@
                 } else call.close();
             });
 
-            const usersRes = await fetch('/api/users'); const users = await usersRes.json();
-            const contactList = document.getElementById('contactList');
-            users.forEach(u => {
-                const div = document.createElement('div'); div.className = 'contact';
-                div.onclick = () => openChat(u.id, u.full_name, u.avatar_url);
-                div.innerHTML = `<div class="avatar-circle">${getAvatar(u.avatar_url)}</div>
-                                 <div><h4 style="font-size:15px; color:#333;">${u.full_name}</h4><p style="font-size:12px; color:#888;">Chat pribadi</p></div>`;
-                contactList.appendChild(div);
-            });
+            loadContacts();
 
             socket.emit('join_chat', { room: 'group' }); socket.emit('join_chat', { room: 'dm', userId: currentUser.id });
             
-            // Handler Pesan
+            // --- HANDLERS SOCKET ---
             socket.on('receive_message', (msg) => {
-                if (msg.sender_id == currentUser.id) {
-                    const temp = document.getElementById(`temp-${msg.id}`);
-                    if(temp) temp.remove(); 
-                }
-                
-                // Cek apakah pesan ini untuk chat yang lagi kebuka
+                if (msg.sender_id == currentUser.id) { const temp = document.getElementById(`temp-${msg.id}`); if(temp) temp.remove(); }
                 let isCurrentChat = false;
                 if (activeChatId === 'group' && msg.receiver_id === null) isCurrentChat = true;
                 else if (activeChatId !== 'group' && (msg.sender_id == activeChatId || msg.receiver_id == activeChatId)) isCurrentChat = true;
 
                 if (isCurrentChat) {
                     appendMessage(msg, msg.sender_id == currentUser.id);
-                    // Kalau bukan dari kita, langsung kirim centang dibaca
                     if(msg.sender_id != currentUser.id) socket.emit('mark_as_read', { chat_id: activeChatId, current_user_id: currentUser.id });
                 }
             });
 
-            // Centang Biru
             socket.on('message_read_status', (data) => {
                 const tick = document.getElementById(`tick-${data.message_id}`);
                 if(tick) tick.classList.add('read');
             });
 
-            // Hapus Pesan
             socket.on('message_deleted', (data) => {
                 const el = document.getElementById(`msg-${data.message_id}`);
-                if(el) el.remove();
+                if(el) { el.innerHTML = `<i style="color:#888; font-size:12px;">Pesan ini telah dihapus</i>`; el.style.background = 'transparent'; el.style.boxShadow='none'; }
             });
 
-            // Status Online/Offline Teman
-            socket.on('user_status_change', (data) => {
+            socket.on('message_reaction', (data) => {
+                const el = document.getElementById(`msg-${data.message_id}`);
+                if(el) {
+                    let rBadge = el.querySelector('.reaction-badge');
+                    let emojis = Object.values(data.reactions).join('');
+                    if(emojis.length > 0) {
+                        if(!rBadge) { rBadge = document.createElement('div'); rBadge.className = 'reaction-badge'; el.appendChild(rBadge); }
+                        rBadge.innerText = emojis;
+                    } else if(rBadge) rBadge.remove();
+                }
+            });
+
+            socket.on('user_status', (data) => {
                 if (activeChatId == data.userId) {
-                    document.getElementById('chatHeaderStatus').innerText = data.status === 'online' ? 'Online' : 'Terakhir dilihat baru saja';
+                    document.getElementById('chatHeaderStatus').innerText = data.status === 'online' ? 'Online' : 'Terakhir dilihat ' + new Date(data.last_seen).toLocaleTimeString();
                     document.getElementById('chatHeaderStatus').style.color = data.status === 'online' ? '#25d366' : '#888';
                 }
             });
 
+            socket.on('user_typing', (data) => {
+                const indicator = document.getElementById('typingIndicator');
+                if (activeChatId == data.sender_id || activeChatId === 'group') {
+                    if(data.isTyping) { indicator.innerText = `${data.name} sedang mengetik...`; indicator.style.display = 'block'; }
+                    else indicator.style.display = 'none';
+                }
+            });
+
             openChat('group', 'Grup Kelas', '');
+            document.addEventListener('click', () => { document.getElementById('contextMenu').style.display = 'none'; document.getElementById('emojiBar').style.display = 'none'; });
+        }
+
+        async function loadContacts() {
+            const usersRes = await fetch('/api/users'); const users = await usersRes.json();
+            const contactList = document.getElementById('contactList');
+            contactList.innerHTML = `<div class="contact active" onclick="openChat('group', 'Grup Kelas', '')">
+                <div class="avatar-circle"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div>
+                <div><h4 style="font-size:15px; color:var(--text);">Grup Kelas</h4><p style="font-size:12px; color:#888;">Semua anggota</p></div>
+            </div>`;
             
-            // Tutup menu klik kanan jika klik di luar
-            document.addEventListener('click', () => { document.getElementById('contextMenu').style.display = 'none'; });
+            users.forEach(u => {
+                const div = document.createElement('div'); div.className = 'contact';
+                div.onclick = () => openChat(u.id, u.full_name, u.avatar_url);
+                div.innerHTML = `<div class="avatar-circle">${getAvatar(u.avatar_url)} ${u.is_online ? '<div class="online-dot"></div>' : ''}</div>
+                                 <div><h4 style="font-size:15px; color:var(--text);">${u.full_name}</h4><p style="font-size:12px; color:#888;">${u.is_online ? 'Online' : 'Offline'}</p></div>`;
+                contactList.appendChild(div);
+            });
+        }
+
+        function filterContacts(val) {
+            const contacts = document.querySelectorAll('.contact');
+            contacts.forEach(c => { c.style.display = c.innerText.toLowerCase().includes(val.toLowerCase()) ? 'flex' : 'none'; });
         }
 
         async function openChat(id, name, avatar) {
@@ -225,31 +313,26 @@
             const msgContainer = document.getElementById('chatMessages'); msgContainer.innerHTML = '';
             messages.forEach(m => appendMessage(m, m.sender_id == currentUser.id));
             
-            // Tandai udah dibaca
             socket.emit('mark_as_read', { chat_id: activeChatId, current_user_id: currentUser.id });
-            cancelReply();
+            cancelReply(); document.getElementById('typingIndicator').style.display = 'none';
         }
 
         function appendMessage(msg, isMine, tempId = null) {
             const div = document.createElement('div');
             div.className = `message ${isMine ? 'sent' : 'received'}`;
             div.id = tempId ? tempId : `msg-${msg.id}`;
-            
-            // Data buat Reply
             div.dataset.id = msg.id || tempId;
             div.dataset.text = msg.message || (msg.media_type ? `[${msg.media_type.toUpperCase()}]` : '');
             div.dataset.sender = isMine ? 'Anda' : (msg.full_name || 'Seseorang');
             
-            // Fitur Long Press
-            div.addEventListener('contextmenu', (e) => {
-                e.preventDefault();
-                selectedMessageId = div.dataset.id;
-                const menu = document.getElementById('contextMenu');
-                document.getElementById('deleteBtn').style.display = isMine ? 'block' : 'none';
-                menu.style.display = 'block';
-                menu.style.left = Math.min(e.pageX, window.innerWidth - 150) + 'px';
-                menu.style.top = Math.min(e.pageY, window.innerHeight - 100) + 'px';
-            });
+            // Long Press / Right Click
+            let pressTimer;
+            const startPress = (e) => { pressTimer = setTimeout(() => showContextMenu(e, isMine, div.dataset.id), 600); };
+            const cancelPress = () => { clearTimeout(pressTimer); };
+            
+            div.addEventListener('mousedown', startPress); div.addEventListener('touchstart', startPress);
+            div.addEventListener('mouseup', cancelPress); div.addEventListener('touchend', cancelPress);
+            div.addEventListener('contextmenu', (e) => { e.preventDefault(); showContextMenu(e, isMine, div.dataset.id); });
 
             let mediaHtml = '';
             if (msg.media) {
@@ -258,52 +341,134 @@
                 else if (msg.media_type === 'audio') mediaHtml = `<audio src="${msg.media}" controls></audio>`;
             }
 
-            let replyHtml = msg.reply_text ? `<div class="reply-box"><b>${msg.full_name || 'Seseorang'}</b>${msg.reply_text}</div>` : '';
-            
+            let replyHtml = msg.reply_text ? `<div class="reply-box"><b>${msg.reply_sender}</b>${msg.reply_text}</div>` : '';
             const timeStr = new Date(msg.created_at || new Date()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            let tickHtml = '';
-            if (isMine) {
-                tickHtml = `<svg id="tick-${msg.id}" class="tick ${msg.is_read ? 'read' : ''}" viewBox="0 0 16 15"><path d="M15.01 3.316l-.478-.372a.365.365 0 0 0-.51.063L8.666 9.879a.32.32 0 0 1-.484.033l-.358-.325a.319.319 0 0 0-.484.032l-.378.483a.418.418 0 0 0 .036.541l1.32 1.266c.143.14.361.125.484-.033l6.272-8.048a.366.366 0 0 0-.064-.512zm-4.1 0l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.515.006l-.423.433a.364.364 0 0 0 .006.514l3.258 3.185c.143.14.361.125.484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z"/></svg>`;
+            let tickHtml = isMine ? `<svg id="tick-${msg.id}" class="tick ${msg.is_read ? 'read' : ''}" viewBox="0 0 16 15"><path d="M15.01 3.316l-.478-.372a.365.365 0 0 0-.51.063L8.666 9.879a.32.32 0 0 1-.484.033l-.358-.325a.319.319 0 0 0-.484.032l-.378.483a.418.418 0 0 0 .036.541l1.32 1.266c.143.14.361.125.484-.033l6.272-8.048a.366.366 0 0 0-.064-.512zm-4.1 0l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.515.006l-.423.433a.364.364 0 0 0 .006.514l3.258 3.185c.143.14.361.125.484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z"/></svg>` : '';
+
+            let reactionsHtml = '';
+            if(msg.reactions && Object.keys(msg.reactions).length > 0) {
+                reactionsHtml = `<div class="reaction-badge">${Object.values(msg.reactions).join('')}</div>`;
             }
 
             div.innerHTML = `${replyHtml}${mediaHtml}<p>${msg.message || ''}</p>
-                             <span class="time">${timeStr} ${tickHtml}</span>`;
+                             <span class="time">${timeStr} ${tickHtml}</span>${reactionsHtml}`;
             
             const container = document.getElementById('chatMessages');
             container.appendChild(div);
             container.scrollTop = container.scrollHeight;
         }
 
-        // --- FITUR REPLY & HAPUS ---
+        // --- KONTEKS MENU & REAKSI ---
+        function showContextMenu(e, isMine, msgId) {
+            selectedMessageId = msgId;
+            const menu = document.getElementById('contextMenu');
+            document.getElementById('deleteBtn').style.display = isMine ? 'block' : 'none';
+            let x = e.pageX || e.touches[0].pageX; let y = e.pageY || e.touches[0].pageY;
+            menu.style.display = 'block';
+            menu.style.left = Math.min(x, window.innerWidth - 150) + 'px';
+            menu.style.top = Math.min(y, window.innerHeight - 150) + 'px';
+        }
+
+        function showEmojiBar() {
+            document.getElementById('contextMenu').style.display = 'none';
+            const bar = document.getElementById('emojiBar');
+            bar.style.display = 'flex';
+        }
+
+        function sendReaction(emoji) {
+            socket.emit('react_message', { message_id: selectedMessageId, emoji, chat_id: activeChatId, user_id: currentUser.id });
+            document.getElementById('emojiBar').style.display = 'none';
+        }
+
         function replyToMessage() {
             replyTarget = selectedMessageId;
             document.getElementById('replyOverlay').style.display = 'block';
-            document.getElementById('replyName').innerText = 'Membalas';
+            document.getElementById('replyName').innerText = 'Membalas ' + document.querySelector(`[data-id="${selectedMessageId}"]`).dataset.sender;
             document.getElementById('replyText').innerText = document.querySelector(`[data-id="${selectedMessageId}"]`).dataset.text;
             document.getElementById('msgInput').focus();
+            document.getElementById('contextMenu').style.display = 'none';
         }
 
-        function cancelReply() {
-            replyTarget = null;
-            document.getElementById('replyOverlay').style.display = 'none';
-        }
+        function cancelReply() { replyTarget = null; document.getElementById('replyOverlay').style.display = 'none'; }
 
         function deleteMessage() {
             if(!confirm('Hapus pesan ini untuk semua orang?')) return;
             socket.emit('delete_message', { message_id: selectedMessageId, chat_id: activeChatId });
+            document.getElementById('contextMenu').style.display = 'none';
         }
 
-        // --- KIRIM PESAN ---
+        // --- INPUT & TYPING ---
+        function handleTyping() {
+            if(!isTyping) { isTyping = true; socket.emit('typing', { sender_id: currentUser.id, receiver_id: activeChatId, name: currentUser.name, isTyping: true }); }
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                isTyping = false;
+                socket.emit('typing', { sender_id: currentUser.id, receiver_id: activeChatId, name: currentUser.name, isTyping: false });
+            }, 2000);
+        }
+
         function sendMessage() {
             const input = document.getElementById('msgInput'); const text = input.value.trim();
             if (!text) return;
             const tempId = `temp-${Date.now()}`;
-            
-            appendMessage({ message: text, sender_id: currentUser.id, reply_text: replyTarget ? document.querySelector(`[data-id="${replyTarget}"]`).dataset.text : null }, true, tempId);
+            appendMessage({ message: text, sender_id: currentUser.id, reply_text: replyTarget ? document.querySelector(`[data-id="${replyTarget}"]`).dataset.text : null, reply_sender: replyTarget ? document.querySelector(`[data-id="${replyTarget}"]`).dataset.sender : null }, true, tempId);
             input.value = '';
-            
             socket.emit('send_message', { sender_id: currentUser.id, sender_name: currentUser.name, receiver_id: activeChatId, message: text, media: null, media_type: null, reply_to_id: replyTarget });
             cancelReply();
+            socket.emit('typing', { sender_id: currentUser.id, receiver_id: activeChatId, name: currentUser.name, isTyping: false });
         }
 
         function sendMedia(event) {
+            const file = event.target.files[0]; if (!file) return;
+            const type = file.type.startsWith('image') ? 'image' : 'video';
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                appendMessage({ media: e.target.result, media_type: type, reply_text: replyTarget ? document.querySelector(`[data-id="${replyTarget}"]`).dataset.text : null, reply_sender: replyTarget ? document.querySelector(`[data-id="${replyTarget}"]`).dataset.sender : null }, true);
+                socket.emit('send_message', { sender_id: currentUser.id, sender_name: currentUser.name, receiver_id: activeChatId, message: '', media: e.target.result, media_type: type, reply_to_id: replyTarget });
+                event.target.value = ''; cancelReply();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // --- VN RECORDING ---
+        let mediaRecorder; let audioChunks = []; let isRecording = false;
+        async function toggleRecording() {
+            const micBtn = document.getElementById('micBtn');
+            if (!isRecording) {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream); audioChunks = [];
+                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                mediaRecorder.onstop = () => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(new Blob(audioChunks, { type: 'audio/webm' }));
+                    reader.onloadend = () => {
+                        appendMessage({ media: reader.result, media_type: 'audio' }, true);
+                        socket.emit('send_message', { sender_id: currentUser.id, sender_name: currentUser.name, receiver_id: activeChatId, message: '', media: reader.result, media_type: 'audio', reply_to_id: null });
+                    };
+                };
+                mediaRecorder.start(); isRecording = true; micBtn.style.color = '#ff4757';
+            } else { mediaRecorder.stop(); isRecording = false; micBtn.style.color = 'white'; mediaRecorder.stream.getTracks().forEach(t => t.stop()); }
+        }
+
+        // --- SETTINGS ---
+        function toggleTheme() { document.body.classList.toggle('dark'); localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light'); }
+        function setWallpaper() { const url = document.getElementById('wallpaperUrl').value; if(url) { document.getElementById('chatMessages').style.backgroundImage = `url('${url}')`; localStorage.setItem('wallpaper', url); } else { document.getElementById('chatMessages').style.backgroundImage = `url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')`; localStorage.removeItem('wallpaper'); } }
+
+        // --- CALLS ---
+        function startCall(isVideo) {
+            if (activeChatId === 'group') return alert('Panggilan grup belum didukung.');
+            const targetPeerId = `class-xi5-user-${activeChatId}`;
+            navigator.mediaDevices.getUserMedia({ video: isVideo, audio: true }).then(stream => {
+                localStream = stream; document.getElementById('localVideo').srcObject = stream; document.getElementById('videoContainer').classList.add('active');
+                currentCall = peer.call(targetPeerId, stream);
+                currentCall.on('stream', remote => { document.getElementById('remoteVideo').srcObject = remote; });
+            }).catch(err => alert('Tidak dapat mengakses kamera/mikrofon.'));
+        }
+        function endCall() { if(currentCall) currentCall.close(); if(localStream) localStream.getTracks().forEach(t=>t.stop()); document.getElementById('videoContainer').classList.remove('active'); }
+        function handleEnter(e) { if (e.key === 'Enter') sendMessage(); }
+        function closeChatMobile() { document.getElementById('sidebar').classList.remove('hide'); document.getElementById('chatArea').classList.remove('show'); }
+
+        init();
+    </script>
+</body>
+</html>
