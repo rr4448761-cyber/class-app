@@ -1,4 +1,4 @@
-const CACHE_NAME = 'class-app-v2';
+const CACHE_NAME = 'class-app-v3';
 const ASSET = ['/chat', 'manifest.json'];
 
 self.addEventListener('install', (e) => {

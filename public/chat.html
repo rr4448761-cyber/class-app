@@ -16,24 +16,35 @@
         .contact-list { overflow-y: auto; flex: 1; }
         .contact { padding: 15px 20px; display: flex; align-items: center; gap: 15px; cursor: pointer; border-bottom: 1px solid #f0f0f0; transition: 0.2s; }
         .contact:hover, .contact.active { background: #f0f0ff; border-left: 4px solid #6c5ce7; }
-        .contact img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; background: #dfe6e9; }
+        .contact .avatar-circle { width: 50px; height: 50px; border-radius: 50%; background: #dfe6e9; display: flex; justify-content: center; align-items: center; overflow: hidden; flex-shrink: 0; }
+        .contact .avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
+        .contact .avatar-circle svg { width: 25px; height: 25px; fill: #b2bec3; }
         .contact-info h4 { font-size: 15px; color: #2d3436; margin-bottom: 4px; }
         .contact-info p { font-size: 12px; color: #b2bec3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
         .chat-area { flex: 1; display: flex; flex-direction: column; background: #efeae2; position: relative; }
         .chat-header { padding: 15px 20px; background: #6c5ce7; color: white; display: flex; align-items: center; gap: 15px; z-index: 10; }
-        .chat-header img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid white; }
+        .chat-header .avatar-circle { width: 40px; height: 40px; border-radius: 50%; background: white; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        .chat-header .avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
+        .chat-header .avatar-circle svg { width: 20px; height: 20px; fill: #b2bec3; }
+        .chat-header-info { flex: 1; }
         .chat-header h3 { font-size: 16px; font-weight: 600; }
         .chat-header p { font-size: 12px; opacity: 0.8; }
+        .call-actions { display: flex; gap: 10px; }
+        .call-btn { background: rgba(255,255,255,0.2); border: none; width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; color: white; }
+        .call-btn svg { width: 18px; height: 18px; fill: currentColor; }
         .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-size: cover; background-blend-mode: overlay; }
         .message { max-width: 70%; padding: 10px 15px; border-radius: 12px; font-size: 14px; position: relative; line-height: 1.5; box-shadow: 0 1px 2px rgba(0,0,0,0.1); word-wrap: break-word; }
+        .message img { max-width: 100%; border-radius: 8px; margin-top: 5px; display: block; }
         .message.received { background: white; align-self: flex-start; border-top-left-radius: 0; }
         .message.sent { background: #dcf8c6; align-self: flex-end; border-top-right-radius: 0; }
         .message .sender { font-size: 11px; font-weight: bold; color: #6c5ce7; margin-bottom: 4px; display: block; }
         .message .time { font-size: 10px; color: #999; text-align: right; margin-top: 4px; display: block; }
-        .chat-input { padding: 15px 20px; background: white; display: flex; gap: 12px; align-items: center; z-index: 10; }
-        .chat-input input { flex: 1; padding: 14px 20px; border: 1px solid #dfe6e9; border-radius: 25px; outline: none; font-size: 14px; background: #f9f9f9; }
-        .chat-input button { background: #6c5ce7; color: white; border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; }
-        .chat-input button svg { stroke: white; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+        .chat-input { padding: 10px 15px; background: white; display: flex; gap: 10px; align-items: center; z-index: 10; }
+        .chat-input input[type="text"] { flex: 1; padding: 14px 20px; border: 1px solid #dfe6e9; border-radius: 25px; outline: none; font-size: 14px; background: #f9f9f9; }
+        .btn-attach { background: #dfe6e9; color: #636e72; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
+        .btn-attach svg { width: 20px; height: 20px; fill: currentColor; }
+        .chat-input button.btn-send { background: #6c5ce7; color: white; border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
+        .chat-input button.btn-send svg { stroke: white; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
         .back-btn { display: none; color: white; margin-right: 10px; cursor: pointer; align-items: center; }
         .back-btn svg { stroke: white; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
         @media (max-width: 768px) {
@@ -53,8 +64,10 @@
             <h2>Chat Kelas</h2>
         </div>
         <div class="contact-list" id="contactList">
-            <div class="contact active" onclick="openChat('group', 'Grup XI.5', 'https://ui-avatars.com/api/?name=Grup+XI.5&background=6c5ce7&color=fff')">
-                <img src="https://ui-avatars.com/api/?name=Grup+XI.5&background=6c5ce7&color=fff" alt="Group">
+            <div class="contact active" onclick="openChat('group', 'Grup XI.5', '')">
+                <div class="avatar-circle">
+                    <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                </div>
                 <div class="contact-info"><h4>Grup Kelas XI.5</h4><p>Semua siswa & admin</p></div>
             </div>
         </div>
@@ -62,50 +75,80 @@
     <div class="chat-area" id="chatArea">
         <div class="chat-header">
             <div class="back-btn" onclick="closeChatMobile()"><svg width="22" height="22" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></div>
-            <img id="chatAvatar" src="https://ui-avatars.com/api/?name=Grup+XI.5&background=6c5ce7&color=fff" alt="Avatar">
-            <div><h3 id="chatName">Grup Kelas XI.5</h3><p id="chatStatus" style="display: flex; align-items: center; gap: 5px;"><svg width="8" height="8" viewBox="0 0 24 24" fill="#2ecc71" stroke="none"><circle cx="12" cy="12" r="12"></circle></svg> Online</p></div>
+            <div class="avatar-circle" id="chatHeaderAvatar"></div>
+            <div class="chat-header-info">
+                <h3 id="chatName">Grup Kelas XI.5</h3>
+                <p><i class="fas fa-circle" style="font-size:8px; color:#2ecc71;"></i> Online</p>
+            </div>
+            <!-- Tombol Panggilan -->
+            <div class="call-actions">
+                <button class="call-btn" onclick="startCall('voice')" title="Voice Call">
+                    <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+                </button>
+                <button class="call-btn" onclick="startCall('video')" title="Video Call">
+                    <svg viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+                </button>
+            </div>
         </div>
         <div class="chat-messages" id="chatMessages"></div>
         <div class="chat-input">
+            <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="sendImage(event)">
+            <button class="btn-attach" onclick="document.getElementById('imageInput').click()"><svg viewBox="0 0 24 24"><path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5a2.5 2.5 0 0 1 5 0v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5a2.5 2.5 0 0 0 5 0V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"/></svg></button>
             <input type="text" id="msgInput" placeholder="Ketik pesan..." onkeypress="handleEnter(event)">
-            <button onclick="sendMessage()"><svg width="22" height="22" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
+            <button class="btn-send" onclick="sendMessage()"><svg width="22" height="22" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
         </div>
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js'); }
         let currentUser = null;
         let activeChatId = 'group';
+        let activeChatName = 'Grup XI.5';
         const socket = io();
+
+        function getAvatarHTML(url) {
+            if (url) return `<img src="${url}">`;
+            return `<svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+        }
+
         async function init() {
             try { const res = await fetch('/api/me'); if (!res.ok) throw new Error(); currentUser = await res.json(); } catch (e) { window.location.href = '/'; return; }
+            
             const usersRes = await fetch('/api/users');
             const users = await usersRes.json();
             const contactList = document.getElementById('contactList');
+            
             users.forEach(u => {
                 const div = document.createElement('div');
                 div.className = 'contact'; div.id = `contact-${u.id}`;
                 div.onclick = () => openChat(u.id, u.full_name, u.avatar_url);
-                div.innerHTML = `<img src="${u.avatar_url}" alt="Avatar"><div class="contact-info"><h4>${u.full_name} ${u.role === 'admin' ? '<span style="font-size:10px; background:#6c5ce7; color:white; padding:2px 5px; border-radius:4px;">Admin</span>' : ''}</h4><p>Chat pribadi</p></div>`;
+                div.innerHTML = `<div class="avatar-circle">${getAvatarHTML(u.avatar_url)}</div>
+                                 <div class="contact-info"><h4>${u.full_name}</h4><p>Chat pribadi</p></div>`;
                 contactList.appendChild(div);
             });
+
             socket.emit('join_chat', { room: 'group' });
             socket.emit('join_chat', { room: 'dm', userId: currentUser.id });
+            
             socket.on('receive_message', (msg) => {
                 if (activeChatId === 'group' && msg.receiver_id === null) appendMessage(msg, false);
                 else if (activeChatId !== 'group' && (msg.sender_id == activeChatId || msg.receiver_id == activeChatId)) appendMessage(msg, msg.sender_id == currentUser.id);
             });
-            openChat('group', 'Grup XI.5', 'https://ui-avatars.com/api/?name=Grup+XI.5&background=6c5ce7&color=fff');
+            openChat('group', 'Grup XI.5', '');
         }
+
         async function openChat(id, name, avatar) {
             activeChatId = id;
+            activeChatName = name;
             document.getElementById('chatName').innerText = name;
-            document.getElementById('chatAvatar').src = avatar;
+            document.getElementById('chatHeaderAvatar').innerHTML = getAvatarHTML(avatar);
+            
             document.querySelectorAll('.contact').forEach(c => c.classList.remove('active'));
-            if(id === 'group') document.querySelector('.contact').classList.add('active');
+            if(id === 'group') document.querySelectorAll('.contact')[0].classList.add('active');
             else document.getElementById(`contact-${id}`)?.classList.add('active');
+            
             document.getElementById('sidebar').classList.add('hide');
             document.getElementById('chatArea').classList.add('show');
+
             const res = await fetch(`/api/messages/${id}`);
             const messages = await res.json();
             const msgContainer = document.getElementById('chatMessages');
@@ -113,49 +156,49 @@
             messages.forEach(m => appendMessage(m, m.sender_id == currentUser.id));
             msgContainer.scrollTop = msgContainer.scrollHeight;
         }
+
         function appendMessage(msg, isMine) {
             const div = document.createElement('div');
             div.className = `message ${isMine ? 'sent' : 'received'}`;
-            let senderHtml = '';
-            if (!isMine && activeChatId === 'group') senderHtml = `<span class="sender">${msg.full_name}</span>`;
+            let senderHtml = (!isMine && activeChatId === 'group') ? `<span class="sender">${msg.full_name}</span>` : '';
             const timeStr = new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            div.innerHTML = `${senderHtml}${msg.message}<span class="time">${timeStr}</span>`;
+            let imgHtml = msg.image ? `<img src="${msg.image}">` : '';
+            let textHtml = msg.message ? `<p>${msg.message}</p>` : '';
+            
+            div.innerHTML = `${senderHtml}${imgHtml}${textHtml}<span class="time">${timeStr}</span>`;
             const container = document.getElementById('chatMessages');
             container.appendChild(div);
             container.scrollTop = container.scrollHeight;
         }
+
         function sendMessage() {
             const input = document.getElementById('msgInput');
             const text = input.value.trim();
             if (!text) return;
-            socket.emit('send_message', { sender_id: currentUser.id, sender_name: currentUser.name, sender_avatar: currentUser.avatar, receiver_id: activeChatId === 'group' ? 'group' : activeChatId, message: text });
+            socket.emit('send_message', { sender_id: currentUser.id, sender_name: currentUser.name, sender_avatar: currentUser.avatar, receiver_id: activeChatId === 'group' ? 'group' : activeChatId, message: text, image: null });
             input.value = '';
         }
+
+        function sendImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                socket.emit('send_message', { sender_id: currentUser.id, sender_name: currentUser.name, sender_avatar: currentUser.avatar, receiver_id: activeChatId === 'group' ? 'group' : activeChatId, message: '', image: e.target.result });
+                event.target.value = ''; // Reset input
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // FITUR PANGGILAN (JITSI MEET)
+        function startCall(type) {
+            const roomName = `ClassXI5-${activeChatId === 'group' ? 'Group' : activeChatId}`;
+            const url = `https://meet.jit.si/${roomName}`;
+            window.open(url, '_blank');
+        }
+
         function handleEnter(e) { if (e.key === 'Enter') sendMessage(); }
         function closeChatMobile() { document.getElementById('sidebar').classList.remove('hide'); document.getElementById('chatArea').classList.remove('show'); }
-
-        function urlBase64ToUint8Array(base64String) {
-            const padding = '='.repeat((4 - base64String.length % 4) % 4);
-            const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
-            const rawData = window.atob(base64);
-            const outputArray = new Uint8Array(rawData.length);
-            for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
-            return outputArray;
-        }
-        async function subscribePush() {
-            if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
-            try {
-                const permission = await Notification.requestPermission();
-                if (permission !== 'granted') return;
-                const registration = await navigator.serviceWorker.ready;
-                const keyRes = await fetch('/api/vapid-public-key');
-                const vapidPublicKey = await keyRes.text();
-                const subscription = await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(vapidPublicKey) });
-                await fetch('/api/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(subscription) });
-                console.log('Push Notification Aktif!');
-            } catch (error) { console.error('Gagal subscribe push:', error); }
-        }
-        document.body.addEventListener('click', function initPush() { subscribePush(); document.body.removeEventListener('click', initPush); }, { once: true });
 
         init();
     </script>

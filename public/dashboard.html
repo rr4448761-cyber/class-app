@@ -11,12 +11,14 @@
         body { background: #f7f8fc; padding-bottom: 80px; }
         .header { padding: 20px; display: flex; justify-content: space-between; align-items: center; }
         .header-left { display: flex; align-items: center; gap: 15px; }
-        .badge { background: #6c5ce7; color: white; padding: 10px 15px; border-radius: 12px; font-weight: bold; font-size: 18px; box-shadow: 0 4px 10px rgba(108,92,231,0.3); }
+        .badge { background: #6c5ce7; color: white; padding: 10px 15px; border-radius: 12px; font-weight: bold; font-size: 18px; }
         .header-text span { font-size: 12px; color: #636e72; display: block; }
         .header-text strong { font-size: 18px; color: #2d3436; }
-        .profile-card { background: linear-gradient(135deg, #6c5ce7, #4834d4); margin: 0 20px; border-radius: 24px; padding: 25px; color: white; position: relative; overflow: hidden; box-shadow: 0 10px 20px rgba(108,92,231,0.3); }
-        .profile-info { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; }
-        .profile-info img { width: 65px; height: 65px; border-radius: 50%; border: 3px solid white; object-fit: cover; }
+        .profile-card { background: linear-gradient(135deg, #6c5ce7, #4834d4); margin: 0 20px; border-radius: 24px; padding: 25px; color: white; }
+        .profile-info { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; cursor: pointer; }
+        .avatar-wrap { position: relative; width: 65px; height: 65px; border-radius: 50%; background: #dfe6e9; overflow: hidden; border: 3px solid white; display: flex; justify-content: center; align-items: center; }
+        .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
+        .avatar-wrap svg { width: 35px; height: 35px; fill: #b2bec3; }
         .profile-info h4 { font-size: 13px; opacity: 0.9; margin-bottom: 4px; }
         .profile-info h2 { font-size: 22px; font-weight: 800; text-transform: uppercase; }
         .stats-container { background: linear-gradient(135deg, #ff7f50, #ff6348); border-radius: 18px; padding: 18px; display: flex; justify-content: space-around; text-align: center; }
@@ -38,13 +40,11 @@
         .nav-item.active { color: #6c5ce7; }
         .nav-item svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 200; }
-        .modal-content { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 450px; max-height: 80vh; overflow-y: auto; }
+        .modal-content { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 450px; max-height: 85vh; overflow-y: auto; }
         .modal-content h3 { margin-bottom: 15px; color: #2d3436; }
-        .modal-content input, .modal-content select { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #dfe6e9; border-radius: 10px; background: #f9f9f9; }
+        .modal-content input, .modal-content select, .modal-content textarea { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #dfe6e9; border-radius: 10px; background: #f9f9f9; font-family: inherit; }
         .modal-content button { width: 100%; padding: 12px; background: #6c5ce7; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-bottom: 10px; }
         .btn-close { background: #b2bec3 !important; }
-        .fab-container { position:fixed; bottom:90px; right:20px; display:none; flex-direction:column; gap:10px; z-index:50; }
-        .fab-btn { width: 55px; height: 55px; border-radius: 50%; border: none; cursor: pointer; color: white; font-size: 24px; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
@@ -56,10 +56,15 @@
     </div>
     
     <div class="profile-card">
-        <div class="profile-info">
-            <img id="userAvatar" src="https://ui-avatars.com/api/?name=Loading&background=random" alt="Avatar">
-            <div><h4>Selamat Datang,</h4><h2 id="userName">LOADING...</h2></div>
+        <div class="profile-info" onclick="document.getElementById('avatarInput').click()">
+            <div class="avatar-wrap">
+                <img id="userAvatar" src="" style="display:none;">
+                <svg id="defaultAvatar" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            </div>
+            <div><h4>Selamat Datang, (Klik foto untuk ganti)</h4><h2 id="userName">LOADING...</h2></div>
         </div>
+        <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="updateAvatar(event)">
+        
         <div class="stats-container">
             <div class="stat-item"><h3>0%</h3><p>Kehadiran</p></div>
             <div class="divider"></div>
@@ -75,48 +80,21 @@
     </div>
 
     <div class="menu-grid">
-        <a class="menu-item" onclick="openFeature('jadwal')">
-            <div class="menu-icon"><svg width="22" height="22" viewBox="0 0 24 24" stroke="#e74c3c" fill="none" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
-            <p>Jadwal</p>
-        </a>
-        <a class="menu-item" onclick="openFeature('nilai')">
-            <div class="menu-icon"><svg width="22" height="22" viewBox="0 0 24 24" stroke="#3498db" fill="none" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div>
-            <p>Nilai</p>
-        </a>
-        <a class="menu-item" onclick="openFeature('ujian')">
-            <div class="menu-icon"><svg width="22" height="22" viewBox="0 0 24 24" stroke="#e67e22" fill="none" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></div>
-            <p>Ujian</p>
-        </a>
-        <a class="menu-item" onclick="openFeature('tugas')">
-            <div class="menu-icon"><svg width="22" height="22" viewBox="0 0 24 24" stroke="#d35400" fill="none" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg></div>
-            <p>Tugas</p>
-        </a>
-        <a class="menu-item" onclick="openFeature('perpustakaan')">
-            <div class="menu-icon"><svg width="22" height="22" viewBox="0 0 24 24" stroke="#2ecc71" fill="none" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></div>
-            <p>Perpustakaan</p>
-        </a>
-        <a class="menu-item" onclick="openFeature('kehadiran')">
-            <div class="menu-icon"><svg width="22" height="22" viewBox="0 0 24 24" stroke="#9b59b6" fill="none" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg></div>
-            <p>Kehadiran</p>
-        </a>
-        <a class="menu-item" onclick="openFeature('keuangan')">
-            <div class="menu-icon"><svg width="22" height="22" viewBox="0 0 24 24" stroke="#f1c40f" fill="none" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg></div>
-            <p>Keuangan</p>
-        </a>
-        <a class="menu-item" onclick="openFeature('lainnya')">
-            <div class="menu-icon"><svg width="22" height="22" viewBox="0 0 24 24" stroke="#34495e" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div>
-            <p>Lainnya</p>
-        </a>
+        <a class="menu-item" onclick="openFeature('jadwal')"><div class="menu-icon"><svg width="22" height="22" viewBox="0 0 24 24" stroke="#e74c3c" fill="none" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div><p>Jadwal</p></a>
+        <a class="menu-item" onclick="openFeature('nilai')"><div class="menu-icon"><svg width="22" height="22" viewBox="0 0 24 24" stroke="#3498db" fill="none" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div><p>Nilai</p></a>
+        <a class="menu-item" onclick="openFeature('ujian')"><div class="menu-icon"><svg width="22" height="22" viewBox="0 0 24 24" stroke="#e67e22" fill="none" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></div><p>Ujian</p></a>
+        <a class="menu-item" onclick="openFeature('tugas')"><div class="menu-icon"><svg width="22" height="22" viewBox="0 0 24 24" stroke="#d35400" fill="none" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg></div><p>Tugas</p></a>
+        <a class="menu-item" onclick="openFeature('perpustakaan')"><div class="menu-icon"><svg width="22" height="22" viewBox="0 0 24 24" stroke="#2ecc71" fill="none" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></div><p>Perpustakaan</p></a>
+        <a class="menu-item" onclick="openFeature('kehadiran')"><div class="menu-icon"><svg width="22" height="22" viewBox="0 0 24 24" stroke="#9b59b6" fill="none" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg></div><p>Kehadiran</p></a>
+        <a class="menu-item" onclick="openFeature('keuangan')"><div class="menu-icon"><svg width="22" height="22" viewBox="0 0 24 24" stroke="#f1c40f" fill="none" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg></div><p>Keuangan</p></a>
+        <a class="menu-item" onclick="openFeature('lainnya')"><div class="menu-icon"><svg width="22" height="22" viewBox="0 0 24 24" stroke="#34495e" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div><p>Lainnya</p></a>
     </div>
 
     <div class="section-title"><h3>Pengumuman / Tugas</h3></div>
     <div id="taskListContainer" style="margin-bottom: 30px;"></div>
 
-    <!-- MODAL UNIVERSAL -->
     <div class="modal" id="featureModal">
-        <div class="modal-content" id="modalContent">
-            <!-- Diisi via JS -->
-        </div>
+        <div class="modal-content" id="modalContent"></div>
     </div>
 
     <div class="bottom-nav">
@@ -127,18 +105,51 @@
 
     <script>
         let currentUser = null;
+        
         async function init() {
             try { 
                 const res = await fetch('/api/me'); 
                 if (!res.ok) throw new Error(); 
                 currentUser = await res.json(); 
                 document.getElementById('userName').innerText = currentUser.name;
-                document.getElementById('userAvatar').src = currentUser.avatar;
+                
+                if (currentUser.avatar) {
+                    const img = document.getElementById('userAvatar');
+                    img.src = currentUser.avatar;
+                    img.style.display = 'block';
+                    document.getElementById('defaultAvatar').style.display = 'none';
+                }
             } catch (e) { 
                 window.location.href = '/'; 
                 return; 
             }
             loadTasks();
+        }
+
+        // FUNGSI GANTI FOTO PROFIL
+        function updateAvatar(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const base64Image = e.target.result;
+                
+                // Tampilkan langsung di UI
+                const img = document.getElementById('userAvatar');
+                img.src = base64Image;
+                img.style.display = 'block';
+                document.getElementById('defaultAvatar').style.display = 'none';
+
+                // Kirim ke database
+                const res = await fetch('/api/profile/avatar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ avatar: base64Image })
+                });
+                if(!res.ok) alert('Gagal update foto profil.');
+            };
+            reader.readAsDataURL(file);
         }
 
         async function loadTasks() {
@@ -159,48 +170,92 @@
 
             try {
                 if (feature === 'tugas') {
+                    if (currentUser.role === 'admin') {
+                        html += `
+                            <form onsubmit="submitTask(event)" style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 2px solid #eee;">
+                                <input type="text" id="newTaskSubject" placeholder="Mata Pelajaran (Cth: Matematika)" required>
+                                <input type="text" id="newTaskTitle" placeholder="Judul Tugas" required>
+                                <textarea id="newTaskDesc" placeholder="Deskripsi (opsional)" rows="2"></textarea>
+                                <input type="datetime-local" id="newTaskDue" required>
+                                <button type="submit" style="background:#00b894;">Kirim Broadcast Tugas</button>
+                            </form>
+                        `;
+                    }
                     const res = await fetch('/api/tasks');
                     const data = await res.json();
-                    html += data.map(d => `<div style="border-bottom:1px solid #eee; padding:10px 0"><b>${d.subject}</b> - ${d.title}</div>`).join('');
-                    if (currentUser.role === 'admin') html += `<p style="color:green; font-size:12px; margin-top:10px">Anda Admin: Buat tugas via tombol di halaman utama.</p>`;
+                    html += data.length === 0 ? '<p>Belum ada tugas.</p>' : data.map(d => `<div style="border-bottom:1px solid #eee; padding:10px 0"><b>${d.subject}</b> - ${d.title}<br><small style="color:#e74c3c">Deadline: ${new Date(d.due_date).toLocaleString()}</small></div>`).join('');
                 } 
                 else if (feature === 'jadwal') {
+                    if (currentUser.role === 'admin') {
+                        html += `
+                            <form onsubmit="submitSchedule(event)" style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 2px solid #eee;">
+                                <select id="newJadwalDay" required><option value="Senin">Senin</option><option value="Selasa">Selasa</option><option value="Rabu">Rabu</option><option value="Kamis">Kamis</option><option value="Jumat">Jumat</option></select>
+                                <input type="time" id="newJadwalStart" required><input type="time" id="newJadwalEnd" required>
+                                <input type="text" id="newJadwalSubject" placeholder="Mata Pelajaran" required><input type="text" id="newJadwalTeacher" placeholder="Guru">
+                                <button type="submit" style="background:#00b894;">Tambah Jadwal</button>
+                            </form>
+                        `;
+                    }
                     const res = await fetch('/api/schedules');
                     const data = await res.json();
                     html += data.length === 0 ? '<p>Belum ada jadwal.</p>' : data.map(d => `<div style="border-bottom:1px solid #eee; padding:10px 0"><b>${d.day} (${d.start_time}-${d.end_time})</b><br>${d.subject} - ${d.teacher}</div>`).join('');
                 }
                 else if (feature === 'nilai') {
-                    const res = await fetch('/api/grades');
-                    const data = await res.json();
+                    const res = await fetch('/api/grades'); const data = await res.json();
                     html += data.length === 0 ? '<p>Belum ada nilai.</p>' : data.map(d => `<div style="border-bottom:1px solid #eee; padding:10px 0"><b>${d.subject}</b> (${d.type}): ${d.score}</div>`).join('');
                 }
                 else if (feature === 'kehadiran') {
-                    const res = await fetch('/api/attendance');
-                    const data = await res.json();
+                    const res = await fetch('/api/attendance'); const data = await res.json();
                     html += data.length === 0 ? '<p>Belum ada data kehadiran.</p>' : data.map(d => `<div style="border-bottom:1px solid #eee; padding:10px 0"><b>${new Date(d.date).toLocaleDateString()}</b>: ${d.status}</div>`).join('');
                 }
                 else if (feature === 'ujian') {
-                    const res = await fetch('/api/exams');
-                    const data = await res.json();
+                    const res = await fetch('/api/exams'); const data = await res.json();
                     html += data.length === 0 ? '<p>Belum ada jadwal ujian.</p>' : data.map(d => `<div style="border-bottom:1px solid #eee; padding:10px 0"><b>${d.subject}</b> - ${d.title}<br><small>${new Date(d.exam_date).toLocaleString()}</small></div>`).join('');
                 }
                 else if (feature === 'perpustakaan') {
-                    const res = await fetch('/api/library');
-                    const data = await res.json();
+                    const res = await fetch('/api/library'); const data = await res.json();
                     html += data.length === 0 ? '<p>Belum ada buku materi.</p>' : data.map(d => `<div style="border-bottom:1px solid #eee; padding:10px 0"><b>${d.title}</b> (${d.subject})<br><a href="${d.link}" target="_blank">Buka Link</a></div>`).join('');
                 }
                 else if (feature === 'keuangan') {
-                    const res = await fetch('/api/finance');
-                    const data = await res.json();
+                    const res = await fetch('/api/finance'); const data = await res.json();
                     html += data.length === 0 ? '<p>Belum ada tagihan/kas.</p>' : data.map(d => `<div style="border-bottom:1px solid #eee; padding:10px 0"><b>${d.description}</b>: Rp${d.amount} (${d.status})</div>`).join('');
                 }
-                else {
-                    html += `<p>Fitur ini masih dalam pengembangan.</p>`;
-                }
+                else { html += `<p>Fitur ini masih dalam pengembangan.</p>`; }
             } catch (e) { html += `<p style="color:red">Gagal memuat data.</p>`; }
 
             html += `<button class="btn-close" onclick="document.getElementById('featureModal').style.display='none'">Tutup</button>`;
             content.innerHTML = html;
+        }
+
+        async function submitTask(e) {
+            e.preventDefault();
+            const res = await fetch('/api/tasks', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    subject: document.getElementById('newTaskSubject').value,
+                    title: document.getElementById('newTaskTitle').value,
+                    description: document.getElementById('newTaskDesc').value,
+                    due_date: document.getElementById('newTaskDue').value
+                })
+            });
+            if (res.ok) { alert('Tugas dibroadcast!'); document.getElementById('featureModal').style.display = 'none'; loadTasks(); } 
+            else alert('Gagal.');
+        }
+
+        async function submitSchedule(e) {
+            e.preventDefault();
+            const res = await fetch('/api/schedules', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    day: document.getElementById('newJadwalDay').value,
+                    start_time: document.getElementById('newJadwalStart').value,
+                    end_time: document.getElementById('newJadwalEnd').value,
+                    subject: document.getElementById('newJadwalSubject').value,
+                    teacher: document.getElementById('newJadwalTeacher').value
+                })
+            });
+            if (res.ok) { alert('Jadwal ditambahkan!'); openFeature('jadwal'); } 
+            else alert('Gagal.');
         }
 
         async function logout() { await fetch('/api/logout', { method: 'POST' }); window.location.href = '/'; }
