@@ -2,87 +2,150 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat - WhatsApp Clone</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Chat - WhatsApp by Kyz</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
-        :root { --bg: #efeae2; --chat-bg: #efeae2; --recv: #fff; --sent: #d9fdd3; --header: #075e54; }
-        body.dark { --bg: #0b141a; --chat-bg: #0b141a; --recv: #202c33; --sent: #005c4b; --header: #202c33; }
+        :root { 
+            --gold: #C5A059; 
+            --gold-dark: #A8823D;
+            --bg: #efeae2; 
+            --header: #C5A059; 
+            --recv: #ffffff; 
+            --sent: #fdf5e6; 
+            --text: #000;
+        }
+        body.dark { 
+            --bg: #0b141a; 
+            --header: #1f2c34; 
+            --recv: #202c33; 
+            --sent: #005c4b; 
+            --text: #e9edef;
+        }
         
-        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; transition: background 0.3s; }
-        body { display: flex; height: 100vh; overflow: hidden; background: var(--bg); }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Helvetica, Arial, sans-serif; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { display: flex; height: 100dvh; width: 100vw; overflow: hidden; background: var(--bg); }
         
-        .sidebar { width: 35%; min-width: 300px; background: var(--recv); display: flex; flex-direction: column; }
-        .sidebar-header { padding: 15px 20px; background: var(--header); color: white; display: flex; align-items: center; gap: 15px; font-weight: 600; }
+        /* Sidebar */
+        .sidebar { width: 35%; min-width: 320px; background: var(--recv); display: flex; flex-direction: column; border-right: 1px solid rgba(0,0,0,0.1); }
+        .sidebar-header { padding: 15px 20px; background: var(--header); color: white; display: flex; align-items: center; gap: 15px; font-weight: 600; font-size: 18px; }
         .contact-list { flex: 1; overflow-y: auto; }
-        .contact { padding: 15px 20px; display: flex; align-items: center; gap: 15px; cursor: pointer; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .contact { padding: 12px 20px; display: flex; align-items: center; gap: 15px; cursor: pointer; border-bottom: 1px solid rgba(0,0,0,0.05); }
         .contact:hover, .contact.active { background: rgba(0,0,0,0.05); }
-        .avatar-circle { width: 50px; height: 50px; border-radius: 50%; background: #ccc; display: flex; justify-content: center; align-items: center; overflow: hidden; }
-        .avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
+        .contact .avatar-circle { width: 48px; height: 48px; border-radius: 50%; background: #ccc; display: flex; justify-content: center; align-items: center; overflow: hidden; flex-shrink: 0;}
+        .contact .avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
+        .contact .avatar-circle svg { width: 30px; height: 30px; fill: #888; }
+        .contact h4 { font-size: 16px; color: var(--text); margin-bottom: 3px; }
+        .contact p { font-size: 13px; color: #888; }
         
-        .chat-area { flex: 1; display: flex; flex-direction: column; background: var(--chat-bg); position: relative; }
-        .chat-header { padding: 10px 20px; background: var(--header); color: white; display: flex; align-items: center; gap: 15px; }
-        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-size: cover; }
-        .message { max-width: 75%; padding: 8px 12px; border-radius: 8px; font-size: 14px; position: relative; box-shadow: 0 1px 1px rgba(0,0,0,0.1); color: #000; }
+        /* Chat Area */
+        .chat-area { flex: 1; display: flex; flex-direction: column; background: var(--bg); position: relative; }
+        .chat-header { padding: 10px 20px; background: var(--header); color: white; display: flex; align-items: center; gap: 15px; z-index: 10; }
+        .chat-header .avatar-circle { width: 40px; height: 40px; border-radius: 50%; background: #fff; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        .chat-header .avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
+        .chat-header .avatar-circle svg { width: 25px; height: 25px; fill: #888; }
+        .chat-header-info h3 { font-size: 16px; font-weight: 600; }
+        .chat-header-info p { font-size: 12px; opacity: 0.8; }
+        
+        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-size: cover; background-blend-mode: overlay; }
+        
+        .message { max-width: 75%; padding: 8px 12px; border-radius: 8px; font-size: 14.5px; position: relative; box-shadow: 0 1px 1px rgba(0,0,0,0.1); color: var(--text); word-wrap: break-word; }
         .message.received { background: var(--recv); align-self: flex-start; border-top-left-radius: 0; }
         .message.sent { background: var(--sent); align-self: flex-end; border-top-right-radius: 0; }
+        
         .message img, .message video { max-width: 100%; border-radius: 6px; margin-top: 5px; display: block; }
-        .message audio { max-width: 100%; margin-top: 5px; }
-        .message .time { font-size: 10px; color: #888; float: right; margin: 5px 0 0 10px; }
+        .message audio { max-width: 100%; margin-top: 5px; outline: none; }
+        .message .time { font-size: 11px; color: #888; float: right; margin: 5px 0 0 10px; }
         
-        .chat-input { padding: 10px; background: var(--header); display: flex; gap: 8px; align-items: center; }
-        .chat-input input[type="text"] { flex: 1; padding: 12px; border-radius: 20px; border: none; outline: none; }
-        .btn-icon { background: transparent; border: none; color: white; cursor: pointer; display: flex; justify-content: center; align-items: center; padding: 5px; }
-        .btn-send { background: #00a884; border-radius: 50%; width: 45px; height: 45px; display: flex; justify-content: center; align-items: center; border: none; color: white; cursor: pointer; }
+        /* Input Area */
+        .chat-input { padding: 10px; background: var(--header); display: flex; gap: 8px; align-items: center; padding-bottom: max(10px, env(safe-area-inset-bottom)); }
+        .chat-input input[type="text"] { flex: 1; padding: 12px 15px; border-radius: 20px; border: none; outline: none; font-size: 15px; }
+        .btn-icon { background: transparent; border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; padding: 8px; border-radius: 50%; }
+        .btn-icon svg { width: 24px; height: 24px; fill: white; }
+        .btn-icon.recording svg { fill: #ff4757; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
         
+        .btn-send { background: #00a884; border-radius: 50%; width: 45px; height: 45px; display: flex; justify-content: center; align-items: center; border: none; color: white; cursor: pointer; flex-shrink: 0; }
+        .btn-send svg { width: 22px; height: 22px; fill: white; margin-left: -2px; }
+        
+        .back-btn { display: none; background: transparent; border: none; color: white; margin-right: 5px; }
+        .back-btn svg { width: 24px; height: 24px; fill: white; }
+
+        /* Video Call Container */
         .video-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1000; flex-direction: column; }
         .video-container.active { display: flex; }
         .remote-video { flex: 1; width: 100%; object-fit: cover; }
-        .local-video { position: absolute; top: 20px; right: 20px; width: 100px; height: 150px; object-fit: cover; border-radius: 10px; border: 2px solid white; }
+        .local-video { position: absolute; top: 20px; right: 20px; width: 100px; height: 150px; object-fit: cover; border-radius: 10px; border: 2px solid var(--gold); z-index: 10; }
         
-        @media (max-width: 768px) { .sidebar { width: 100%; position: absolute; z-index: 20; } .sidebar.hide { display: none; } .chat-area { width: 100%; position: absolute; z-index: 30; display: none; } .chat-area.show { display: flex; } .back-btn { display: flex !important; } }
-        .back-btn { display: none; background: transparent; border: none; color: white; margin-right: 10px; }
+        /* Responsive Mobile */
+        @media (max-width: 768px) {
+            .sidebar { width: 100%; border-right: none; }
+            .sidebar.hide { display: none; }
+            .chat-area { width: 100%; display: none; }
+            .chat-area.show { display: flex; }
+            .back-btn { display: flex !important; }
+            .chat-header { padding: 10px 15px; }
+        }
     </style>
 </head>
 <body>
+    <!-- SIDEBAR -->
     <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">Chat Kelas</div>
+        <div class="sidebar-header">WhatsApp by Kyz</div>
         <div class="contact-list" id="contactList">
             <div class="contact active" onclick="openChat('group', 'Grup Kelas')">
-                <div class="avatar-circle"><svg viewBox="0 0 24 24" fill="#888"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div>
-                <div><h4 style="font-size:15px; color:#333;">Grup Kelas</h4><p style="font-size:12px; color:#888;">Semua siswa & admin</p></div>
+                <div class="avatar-circle"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div>
+                <div><h4>Grup Kelas</h4><p>Semua siswa & admin</p></div>
             </div>
         </div>
     </div>
 
+    <!-- CHAT AREA -->
     <div class="chat-area" id="chatArea">
         <div class="chat-header">
-            <button class="back-btn" onclick="closeChatMobile()">&#8592;</button>
-            <div id="chatHeaderName" style="font-weight:bold; flex:1;">Grup Kelas</div>
+            <button class="back-btn" onclick="closeChatMobile()"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></button>
+            <div class="avatar-circle" id="chatHeaderAvatar"></div>
+            <div class="chat-header-info">
+                <h3 id="chatHeaderName">Grup Kelas</h3>
+                <p>Online</p>
+            </div>
         </div>
         <div class="chat-messages" id="chatMessages"></div>
         <div class="chat-input">
             <input type="file" id="mediaInput" accept="image/*,video/*" style="display:none" onchange="sendMedia(event)">
-            <button class="btn-icon" onclick="document.getElementById('mediaInput').click()">📎</button>
-            <button class="btn-icon" id="micBtn" onclick="toggleRecording()">🎤</button>
+            <button class="btn-icon" onclick="document.getElementById('mediaInput').click()">
+                <svg viewBox="0 0 24 24"><path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5a2.5 2.5 0 0 1 5 0v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5a2.5 2.5 0 0 0 5 0V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"/></svg>
+            </button>
+            <button class="btn-icon" id="micBtn" onclick="toggleRecording()">
+                <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+            </button>
             <input type="text" id="msgInput" placeholder="Ketik pesan..." onkeypress="handleEnter(event)">
-            <button class="btn-send" onclick="sendMessage()">➤</button>
+            <button class="btn-send" onclick="sendMessage()">
+                <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            </button>
         </div>
     </div>
 
+    <!-- VIDEO CALL UI -->
     <div class="video-container" id="videoContainer">
         <video class="remote-video" id="remoteVideo" autoplay playsinline></video>
         <video class="local-video" id="localVideo" autoplay muted playsinline></video>
-        <div style="padding:20px; background:#222; text-align:center;"><button onclick="endCall()" style="background:#ff4757; color:white; border:none; padding:10px 20px; border-radius:5px;">Tutup Panggilan</button></div>
+        <div style="padding:20px; background:#222; text-align:center;">
+            <button onclick="endCall()" style="background:#ff4757; color:white; border:none; padding:12px 30px; border-radius:25px; font-weight:bold; cursor:pointer;">Tutup Panggilan</button>
+        </div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        let currentUser = null; let activeChatId = 'group'; let activeChatName = 'Grup Kelas';
+        let currentUser = null; let activeChatId = 'group'; 
         const socket = io();
         let peer = null; let localStream = null; let currentCall = null;
 
-        // Optimistic UI (Langsung tampil tanpa nunggu server)
+        function getAvatarHTML(url) {
+            if (url) return `<img src="${url}">`;
+            return `<svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+        }
+
         function appendMessage(msg, isMine, tempId = null) {
             const div = document.createElement('div');
             div.className = `message ${isMine ? 'sent' : 'received'}`;
@@ -96,7 +159,7 @@
             }
             
             const timeStr = new Date(msg.created_at || new Date()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            div.innerHTML = `${mediaHtml}<p>${msg.message || ''}</p><span class="time">${timeStr} ${isMine ? '✓' : ''}</span>`;
+            div.innerHTML = `${mediaHtml}<p>${msg.message || ''}</p><span class="time">${timeStr} ${isMine ? '✓✓' : ''}</span>`;
             
             const container = document.getElementById('chatMessages');
             container.appendChild(div);
@@ -121,17 +184,15 @@
             const contactList = document.getElementById('contactList');
             users.forEach(u => {
                 const div = document.createElement('div'); div.className = 'contact';
-                div.onclick = () => openChat(u.id, u.full_name);
-                div.innerHTML = `<div class="avatar-circle">${u.avatar_url ? `<img src="${u.avatar_url}">` : `<svg viewBox="0 0 24 24" fill="#888"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z"/></svg>`}</div>
-                                 <div><h4 style="font-size:15px; color:#333;">${u.full_name}</h4><p style="font-size:12px; color:#888;">Chat pribadi</p></div>`;
+                div.onclick = () => openChat(u.id, u.full_name, u.avatar_url);
+                div.innerHTML = `<div class="avatar-circle">${getAvatarHTML(u.avatar_url)}</div>
+                                 <div><h4>${u.full_name}</h4><p>Chat pribadi</p></div>`;
                 contactList.appendChild(div);
             });
 
             socket.emit('join_chat', { room: 'group' }); socket.emit('join_chat', { room: 'dm', userId: currentUser.id });
             
-            // Tangkap Pesan Masuk
             socket.on('receive_message', (msg) => {
-                // Hapus pesan sementara (temp) jika ini pesan kita sendiri yang sukses terkirim
                 if (msg.sender_id == currentUser.id) {
                     const temp = document.getElementById(`temp-${msg.id}`);
                     if(temp) temp.remove(); 
@@ -143,9 +204,13 @@
             openChat('group', 'Grup Kelas');
         }
 
-        async function openChat(id, name) {
-            activeChatId = id; document.getElementById('chatHeaderName').innerText = name;
-            document.getElementById('sidebar').classList.add('hide'); document.getElementById('chatArea').classList.add('show');
+        async function openChat(id, name, avatar) {
+            activeChatId = id; 
+            document.getElementById('chatHeaderName').innerText = name;
+            document.getElementById('chatHeaderAvatar').innerHTML = getAvatarHTML(avatar);
+            document.getElementById('sidebar').classList.add('hide'); 
+            document.getElementById('chatArea').classList.add('show');
+            
             const res = await fetch(`/api/messages/${id}`); const messages = await res.json();
             const msgContainer = document.getElementById('chatMessages'); msgContainer.innerHTML = '';
             messages.forEach(m => appendMessage(m, m.sender_id == currentUser.id));
@@ -155,10 +220,8 @@
             const input = document.getElementById('msgInput'); const text = input.value.trim();
             if (!text) return;
             const tempId = `temp-${Date.now()}`;
-            // 1. TAMPILKAN LANGSUNG (Optimistic)
             appendMessage({ message: text, sender_id: currentUser.id }, true, tempId);
             input.value = '';
-            // 2. KIRIM KE SERVER
             socket.emit('send_message', { sender_id: currentUser.id, sender_name: currentUser.name, receiver_id: activeChatId, message: text, media: null, media_type: null });
         }
 
@@ -174,7 +237,6 @@
             reader.readAsDataURL(file);
         }
 
-        // VN Logic
         let mediaRecorder; let audioChunks = []; let isRecording = false;
         async function toggleRecording() {
             const micBtn = document.getElementById('micBtn');
@@ -190,8 +252,8 @@
                         socket.emit('send_message', { sender_id: currentUser.id, sender_name: currentUser.name, receiver_id: activeChatId, message: '', media: reader.result, media_type: 'audio' });
                     };
                 };
-                mediaRecorder.start(); isRecording = true; micBtn.style.color = 'red';
-            } else { mediaRecorder.stop(); isRecording = false; micBtn.style.color = 'white'; mediaRecorder.stream.getTracks().forEach(t => t.stop()); }
+                mediaRecorder.start(); isRecording = true; micBtn.classList.add('recording');
+            } else { mediaRecorder.stop(); isRecording = false; micBtn.classList.remove('recording'); mediaRecorder.stream.getTracks().forEach(t => t.stop()); }
         }
 
         function handleEnter(e) { if (e.key === 'Enter') sendMessage(); }
