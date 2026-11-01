@@ -56,9 +56,9 @@ async function initDB() {
             CREATE TABLE IF NOT EXISTS schedules (id SERIAL PRIMARY KEY, day TEXT, start_time TEXT, end_time TEXT, subject TEXT, teacher TEXT, room TEXT);
         `);
         
-        const res = await client.query(`SELECT * FROM users WHERE username = 'admin'`);
+        const res = await client.query(`SELECT * FROM users WHERE username = 'ikyadmin'`);
         if (res.rows.length === 0) {
-            const hash = bcrypt.hashSync('admin123', 10);
+            const hash = bcrypt.hashSync('ikyaja123', 10);
             await client.query(`INSERT INTO users (username, password, plain_password, role, full_name) VALUES ('ikyadmin', $1, '', 'ikyaja123', 'ADMIN-REX')`, [hash]);
         }
     } catch (err) { console.error('DB Init Error:', err); } finally { client.release(); }
