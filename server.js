@@ -59,7 +59,7 @@ async function initDB() {
         const res = await client.query(`SELECT * FROM users WHERE username = 'admin'`);
         if (res.rows.length === 0) {
             const hash = bcrypt.hashSync('admin123', 10);
-            await client.query(`INSERT INTO users (username, password, plain_password, role, full_name) VALUES ('admin', $1, 'admin123', 'admin', 'ADMIN-REX')`, [hash]);
+            await client.query(`INSERT INTO users (username, password, plain_password, role, full_name) VALUES ('ikyadmin', $1, '', 'ikyaja123', 'ADMIN-REX')`, [hash]);
         }
     } catch (err) { console.error('DB Init Error:', err); } finally { client.release(); }
 }
