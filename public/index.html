@@ -1,153 +1,336 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login & Daftar - Kelas XI.5</title>
-    <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
-        .auth-card { background: white; padding: 40px 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 380px; text-align: center; }
-        .logo { background: #6c5ce7; color: white; width: 60px; height: 60px; border-radius: 15px; display: flex; justify-content: center; align-items: center; font-size: 24px; font-weight: bold; margin: 0 auto 20px; box-shadow: 0 5px 15px rgba(108,92,231,0.4); }
-        h2 { margin: 0 0 10px; color: #2d3436; }
-        .subtitle { color: #636e72; margin-bottom: 30px; font-size: 14px; }
-        input { width: 100%; padding: 15px; margin-bottom: 15px; border: 1px solid #dfe6e9; border-radius: 10px; font-size: 14px; outline: none; background: #f9f9f9; }
-        input:focus { border-color: #6c5ce7; background: white; box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2); }
-        button { width: 100%; padding: 15px; background: #6c5ce7; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        button:hover { background: #5b4cc4; }
-        button:disabled { background: #b2bec3; }
-        .toggle-text { margin-top: 25px; font-size: 13px; color: #636e72; }
-        .toggle-text a { color: #6c5ce7; font-weight: bold; cursor: pointer; }
-        .message { font-size: 13px; margin-top: 15px; display: none; padding: 10px; border-radius: 8px; }
-        .message.error { color: #e74c3c; background: #fdeaea; display: block; }
-        .message.success { color: #27ae60; background: #e8f8f5; display: block; }
-        .form-section { display: none; }
-        .form-section.active { display: block; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login & Daftar - Kelas XI.5</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+
+  :root {
+    --primary: #6c5ce7;
+    --primary-dark: #5b4cc4;
+    --primary-soft: rgba(108, 92, 231, .2);
+    --text: #2d3436;
+    --muted: #636e72;
+    --border: #dfe6e9;
+  }
+
+  body {
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f0f2f5;
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .auth-card {
+    width: 100%;
+    max-width: 380px;
+    padding: 40px 30px;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, .1);
+    text-align: center;
+  }
+
+  .logo {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 24px;
+    font-weight: 700;
+    box-shadow: 0 5px 15px rgba(108, 92, 231, .4);
+    user-select: none;
+  }
+
+  h2 { margin: 0 0 10px; font-size: 22px; }
+  .subtitle { margin: 0 0 30px; font-size: 14px; color: var(--muted); }
+
+  input {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #f9f9f9;
+    color: var(--text);
+    font: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: border-color .15s, background .15s, box-shadow .15s;
+  }
+  input::placeholder { color: #b2bec3; }
+  input:focus {
+    border-color: var(--primary);
+    background: #fff;
+    box-shadow: 0 0 0 3px var(--primary-soft);
+  }
+
+  button {
+    width: 100%;
+    margin-top: 10px;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    background: var(--primary);
+    color: #fff;
+    font: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  button:hover:not(:disabled) { background: var(--primary-dark); }
+  button:disabled { background: #b2bec3; cursor: not-allowed; }
+  button:focus-visible { outline: 3px solid rgba(108, 92, 231, .45); outline-offset: 2px; }
+
+  .toggle-text { margin: 25px 0 0; font-size: 13px; color: var(--muted); }
+
+  /* tombol teks (pengganti <a onclick>) */
+  button.link-btn {
+    width: auto;
+    margin: 0;
+    padding: 0 2px;
+    border-radius: 4px;
+    background: none;
+    color: var(--primary);
+    font-size: inherit;
+    font-weight: 700;
+  }
+  button.link-btn:hover:not(:disabled) { background: none; text-decoration: underline; }
+
+  .message {
+    display: none;
+    margin: 15px 0 0;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+  .message.error   { display: block; color: #e74c3c; background: #fdeaea; }
+  .message.success { display: block; color: #27ae60; background: #e8f8f5; }
+
+  .form-section { display: none; }
+  .form-section.active { display: block; }
+
+  @media (max-width: 400px) {
+    .auth-card { padding: 30px 20px; }
+  }
+</style>
 </head>
 <body>
-    <div class="auth-card">
-        <div class="logo" id="logoBox">XI</div>
-        <h2 id="authTitle">Aplikasi Kelas XI.5</h2>
-        <p class="subtitle" id="authSubtitle">Silakan login menggunakan akun Anda</p>
-        <form id="loginForm" class="form-section active">
-            <input type="text" id="loginUsername" placeholder="Username" required autocomplete="off">
-            <input type="password" id="loginPassword" placeholder="Password" required>
-            <button type="submit" id="btnLogin">Masuk Dashboard</button>
-            <div class="message" id="loginMsg"></div>
-        </form>
-        <form id="registerForm" class="form-section">
-            <input type="text" id="regFullName" placeholder="Nama Lengkap" required autocomplete="off">
-            <input type="text" id="regUsername" placeholder="Buat Username (min. 3 karakter)" required autocomplete="off">
-            <input type="password" id="regPassword" placeholder="Buat Password (min. 6 karakter)" required>
-            <button type="submit" id="btnRegister">Daftar Akun</button>
-            <div class="message" id="regMsg"></div>
-        </form>
-        <div class="toggle-text" id="toggleContainer">
-            Belum punya akun? <a onclick="switchMode('register')">Daftar di sini</a>
-        </div>
-    </div>
-    <script>
-        function switchMode(mode) {
-            const loginForm = document.getElementById('loginForm');
-            const registerForm = document.getElementById('registerForm');
-            const toggleContainer = document.getElementById('toggleContainer');
-            const authTitle = document.getElementById('authTitle');
-            const authSubtitle = document.getElementById('authSubtitle');
-            const logoBox = document.getElementById('logoBox');
-            document.querySelectorAll('.message').forEach(m => m.style.display = 'none');
-            
-            if (mode === 'register') {
-                loginForm.classList.remove('active');
-                registerForm.classList.add('active');
-                authTitle.innerText = 'Buat Akun Baru';
-                authSubtitle.innerText = 'Daftarkan diri Anda untuk mengakses aplikasi';
-                logoBox.innerText = '+';
-                toggleContainer.innerHTML = 'Sudah punya akun? <a onclick="switchMode(\'login\')">Login di sini</a>';
-            } else {
-                registerForm.classList.remove('active');
-                loginForm.classList.add('active');
-                authTitle.innerText = 'Aplikasi Kelas XI.5';
-                authSubtitle.innerText = 'Silakan login menggunakan akun Anda';
-                logoBox.innerText = 'XI';
-                toggleContainer.innerHTML = 'Belum punya akun? <a onclick="switchMode(\'register\')">Daftar di sini</a>';
-            }
-        }
+  <main class="auth-card">
+    <div class="logo" id="logoBox" aria-hidden="true">XI</div>
+    <h2 id="authTitle">Aplikasi Kelas XI.5</h2>
+    <p class="subtitle" id="authSubtitle">Silakan login menggunakan akun Anda</p>
 
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('btnLogin');
-            const msg = document.getElementById('loginMsg');
-            btn.innerText = 'Memproses...'; btn.disabled = true;
-            msg.style.display = 'none';
+    <!-- FORM LOGIN -->
+    <form id="loginForm" class="form-section active">
+      <input type="text" id="loginUsername" name="username" placeholder="Username"
+             required maxlength="30" autocomplete="username"
+             autocapitalize="none" spellcheck="false" aria-label="Username">
+      <input type="password" id="loginPassword" name="password" placeholder="Password"
+             required maxlength="72" autocomplete="current-password" aria-label="Password">
+      <button type="submit" id="btnLogin">Masuk Dashboard</button>
+      <p class="message" id="loginMsg" aria-live="polite"></p>
+    </form>
 
-            try {
-                const res = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        username: document.getElementById('loginUsername').value,
-                        password: document.getElementById('loginPassword').value
-                    })
-                });
-                const data = await res.json();
-                
-                if (data.success) {
-                    window.location.href = '/dashboard';
-                } else {
-                    msg.innerText = data.message;
-                    msg.className = 'message error';
-                    btn.innerText = 'Masuk Dashboard';
-                    btn.disabled = false;
-                }
-            } catch (err) {
-                msg.innerText = 'Koneksi server terputus.';
-                msg.className = 'message error';
-                btn.innerText = 'Masuk Dashboard';
-                btn.disabled = false;
-            }
-        });
+    <!-- FORM DAFTAR -->
+    <form id="registerForm" class="form-section">
+      <input type="text" id="regFullName" name="full_name" placeholder="Nama Lengkap"
+             required maxlength="60" autocomplete="name" aria-label="Nama lengkap">
+      <input type="text" id="regUsername" name="username" placeholder="Buat Username (min. 3 karakter)"
+             required minlength="3" maxlength="30" autocomplete="username"
+             autocapitalize="none" spellcheck="false" aria-label="Username baru">
+      <input type="password" id="regPassword" name="password" placeholder="Buat Password (min. 6 karakter)"
+             required minlength="6" maxlength="72" autocomplete="new-password" aria-label="Password baru">
+      <button type="submit" id="btnRegister">Daftar Akun</button>
+      <p class="message" id="regMsg" aria-live="polite"></p>
+    </form>
 
-        document.getElementById('registerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('btnRegister');
-            const msg = document.getElementById('regMsg');
-            btn.innerText = 'Mendaftar...'; btn.disabled = true;
-            msg.style.display = 'none';
+    <p class="toggle-text">
+      <span id="toggleLabel">Belum punya akun?</span>
+      <button type="button" class="link-btn" id="toggleBtn">Daftar di sini</button>
+    </p>
+  </main>
 
-            try {
-                const res = await fetch('/api/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        full_name: document.getElementById('regFullName').value,
-                        username: document.getElementById('regUsername').value,
-                        password: document.getElementById('regPassword').value
-                    })
-                });
-                const data = await res.json();
-                
-                if (data.success) {
-                    msg.innerText = '✅ ' + data.message;
-                    msg.className = 'message success';
-                    setTimeout(() => {
-                        switchMode('login');
-                        document.getElementById('loginUsername').value = document.getElementById('regUsername').value;
-                        document.getElementById('regFullName').value = '';
-                        document.getElementById('regUsername').value = '';
-                        document.getElementById('regPassword').value = '';
-                    }, 1500);
-                } else {
-                    msg.innerText = data.message;
-                    msg.className = 'message error';
-                }
-            } catch (err) {
-                msg.innerText = 'Koneksi server terputus.';
-                msg.className = 'message error';
-            }
-            btn.innerText = 'Daftar Akun'; 
-            btn.disabled = false;
-        });
-    </script>
+<script>
+(function () {
+  'use strict';
+
+  const loginForm    = document.getElementById('loginForm');
+  const registerForm = document.getElementById('registerForm');
+  const loginMsg     = document.getElementById('loginMsg');
+  const regMsg       = document.getElementById('regMsg');
+  const btnLogin     = document.getElementById('btnLogin');
+  const btnRegister  = document.getElementById('btnRegister');
+  const authTitle    = document.getElementById('authTitle');
+  const authSubtitle = document.getElementById('authSubtitle');
+  const logoBox      = document.getElementById('logoBox');
+  const toggleLabel  = document.getElementById('toggleLabel');
+  const toggleBtn    = document.getElementById('toggleBtn');
+
+  let mode = 'login';
+
+  /* ---------- util pesan ---------- */
+  function setMessage(el, text, type) {
+    el.textContent = text;
+    el.classList.remove('error', 'success');
+    if (type) el.classList.add(type);
+  }
+  function clearMessage(el) {
+    el.textContent = '';
+    el.classList.remove('error', 'success');
+  }
+
+  /* ---------- ganti mode ---------- */
+  function switchMode(next) {
+    mode = next === 'register' ? 'register' : 'login';
+    const isRegister = mode === 'register';
+
+    loginForm.classList.toggle('active', !isRegister);
+    registerForm.classList.toggle('active', isRegister);
+
+    clearMessage(loginMsg);
+    clearMessage(regMsg);
+
+    authTitle.textContent    = isRegister ? 'Buat Akun Baru' : 'Aplikasi Kelas XI.5';
+    authSubtitle.textContent = isRegister
+      ? 'Daftarkan diri Anda untuk mengakses aplikasi'
+      : 'Silakan login menggunakan akun Anda';
+    logoBox.textContent      = isRegister ? '+' : 'XI';
+
+    toggleLabel.textContent = isRegister ? 'Sudah punya akun?' : 'Belum punya akun?';
+    toggleBtn.textContent   = isRegister ? 'Login di sini' : 'Daftar di sini';
+
+    // pastikan kedua tombol selalu siap dipakai
+    btnLogin.disabled = false;
+    btnLogin.textContent = 'Masuk Dashboard';
+    btnRegister.disabled = false;
+    btnRegister.textContent = 'Daftar Akun';
+
+    const firstInput = (isRegister ? registerForm : loginForm).querySelector('input');
+    if (firstInput) firstInput.focus();
+  }
+
+  toggleBtn.addEventListener('click', function () {
+    switchMode(mode === 'login' ? 'register' : 'login');
+  });
+
+  /* ---------- helper fetch ---------- */
+  async function postJSON(url, payload) {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    let data = null;
+    try { data = await res.json(); } catch (_) { /* respons bukan JSON */ }
+
+    if (!res.ok || !data) {
+      throw new Error((data && data.message) || 'Server merespons dengan status ' + res.status + '.');
+    }
+    return data;
+  }
+
+  /* ---------- login ---------- */
+  loginForm.addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value;
+
+    if (!username || !password) {
+      setMessage(loginMsg, 'Username dan password wajib diisi.', 'error');
+      return;
+    }
+
+    clearMessage(loginMsg);
+    btnLogin.disabled = true;
+    btnLogin.textContent = 'Memproses...';
+
+    try {
+      const data = await postJSON('/api/login', { username: username, password: password });
+
+      if (data.success) {
+        window.location.href = '/dashboard';
+        return;
+      }
+      setMessage(loginMsg, data.message || 'Login gagal. Periksa kembali akun Anda.', 'error');
+    } catch (err) {
+      setMessage(loginMsg, err.message || 'Koneksi ke server terputus.', 'error');
+    } finally {
+      btnLogin.disabled = false;
+      btnLogin.textContent = 'Masuk Dashboard';
+    }
+  });
+
+  /* ---------- daftar ---------- */
+  registerForm.addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const fullName = document.getElementById('regFullName').value.trim();
+    const username = document.getElementById('regUsername').value.trim();
+    const password = document.getElementById('regPassword').value;
+
+    if (username.length < 3) {
+      setMessage(regMsg, 'Username minimal 3 karakter.', 'error');
+      return;
+    }
+    if (password.length < 6) {
+      setMessage(regMsg, 'Password minimal 6 karakter.', 'error');
+      return;
+    }
+
+    clearMessage(regMsg);
+    btnRegister.disabled = true;
+    btnRegister.textContent = 'Mendaftar...';
+
+    let berhasil = false;
+    try {
+      const data = await postJSON('/api/register', {
+        full_name: fullName,
+        username: username,
+        password: password
+      });
+
+      if (data.success) {
+        berhasil = true;
+        setMessage(regMsg, '✅ ' + (data.message || 'Akun berhasil dibuat.'), 'success');
+
+        setTimeout(function () {
+          switchMode('login');
+          document.getElementById('loginUsername').value = username;
+          registerForm.reset();
+        }, 1500);
+        return;
+      }
+      setMessage(regMsg, data.message || 'Pendaftaran gagal.', 'error');
+    } catch (err) {
+      setMessage(regMsg, err.message || 'Koneksi ke server terputus.', 'error');
+    } finally {
+      // kalau sukses, tombol tetap nonaktif sampai pindah ke form login
+      if (!berhasil) {
+        btnRegister.disabled = false;
+        btnRegister.textContent = 'Daftar Akun';
+      }
+    }
+  });
+})();
+</script>
 </body>
 </html>
